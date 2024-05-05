@@ -11,10 +11,15 @@ const app = express();
 
 app.use(express.json());
 app.set('json spaces', 2);
-app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(morgan('dev'));
 
 
+app.get('/', (req, res) => {
+    res.json({ info: "Hello, you're in my express app" });
+})
 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT} from the port`)
