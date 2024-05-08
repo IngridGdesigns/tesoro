@@ -116,6 +116,7 @@ const deleteGoal = async (req, res) => {
 module.exports = {
     getAllGoals, 
     getGoalsById, 
+    getGoalsByUserId,
     createGoal,
     editGoal,
     deleteGoal

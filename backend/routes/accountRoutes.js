@@ -1,3 +1,4 @@
+const express = require('express');
 const {
     getAllAccounts,
     getAccountById,
@@ -7,7 +8,6 @@ const {
     deleteAccount
 } = require('../models/accounts');
 
-const express = require('express');
 const router = express.Router();
 
 router.get('/', getAllAccounts);
