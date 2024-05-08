@@ -29,12 +29,12 @@ const getUserById = async (req, res) => {
 
   const user_id = parseInt(req.params.user_id);
 
-  await client.query('SELECT * FROM users WHERE user_id = $1', [user_id], (err, result) => {
+  await client.query('SELECT * FROM users WHERE user_id = $1', [user_id], (err, results) => {
     if (err) {
       res.status(500).send(err);
       client.release();
     } else { // res.json(dbitems.rows[0] )
-      res.status(200).json(result.rows[0]);
+      res.status(200).json(results.rows[0]);
       client.release();
     }
   });

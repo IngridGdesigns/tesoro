@@ -2,15 +2,15 @@ const pool = require('../postgresConnection');
 
 /* //////////////////////////////////
 
-        Transactions
+        Financial_goals
 
 *//// ///////////////////////////////
 
 
-const getAllTransactions = async (req, res) => {
+const getAllGoals = async (req, res) => {
   const client = await pool.connect();
 
-  client.query('SELECT * FROM transactions', (err, results) => {;
+  client.query('SELECT * FROM financial_goals', (err, results) => {;
     if (err) {
       console.log('error oh noes!!', err);
       res.status(500).send('Server error');
@@ -23,12 +23,13 @@ const getAllTransactions = async (req, res) => {
   });
 };
 
-const getTransactionsById = async (req, res) => {
+
+const getGoalsById = async (req, res) => {
   const client = await pool.connect();
 
-  const user_id = parseInt(req.params.user_id);
+  const goal_id = parseInt(req.params.goal_id);
 
-  await client.query('SELECT * FROM transactions WHERE transaction_id = $1', [user_id], (err, results) => {
+  await client.query('SELECT * FROM financial_goals WHERE goal_id = $1', [goal_id], (err, results) => {
     if (err) {
       res.status(500).send(err);
       client.release();
@@ -39,13 +40,29 @@ const getTransactionsById = async (req, res) => {
   });
 };
 
-const createTransaction = async (req, res) => {
+const getGoalsByUserId = async (req, res) => {
+  const client = await pool.connect();
+
+  const user_id = parseInt(req.params.user_id);
+
+  await client.query('SELECT * FROM financial_goals WHERE user_id = $1', [user_id], (err, results) => {
+    if (err) {
+      res.status(500).send(err);
+      client.release();
+    } else { 
+      res.status(200).json(results.rows[0]);
+      client.release();
+    }
+  });
+};
+
+const createGoal = async (req, res) => {
     const client = await pool.connect();
 
-    const { user_id, account_id, description, category_id, amount, goal_id } = req.body;
+    const { user_id, goal_name, goal_amount, target_date } = req.body;
     
-    await client.query('INSERT INTO transactions(user_id, account_id, description, category_id, amount, goal_id) VALUES ($1, $2 $3, $4, $5, $6) RETURNING *',
-        [user_id, account_id, description, category_id, amount, goal_id], (err, results) => {
+    await client.query('INSERT INTO financial_goals(user_id, goal_name, goal_amount, target_date) VALUES ($1, $2 $3, $4) RETURNING *',
+        [user_id, goal_name, goal_amount, target_date], (err, results) => {
              if (err) {
                 res.status(500).send(err);
                 client.release();
@@ -56,13 +73,13 @@ const createTransaction = async (req, res) => {
         })
 }
 
-const editTransaction = async (req, res) => {
+const editGoal = async (req, res) => {
     const client = await pool.connect();
 
-    const { user_id, account_id, description, category_id, amount, goal_id } = req.body;
-
-    await client.query('UPDATE transactions SET account_id = $1, description = $2, category_id = $3, amount = $4, goal_id = $5 WHERE user_id = $6 RETURNING *',
-        [user_id, account_id, description, category_id, amount, goal_id], (err, results) => {
+    const { user_id, goal_name, goal_amount, target_date } = req.body;
+    
+    await client.query('UPDATE financial_goals SET goal_name = $1, goal_amount = $2, target_date = $3 WHERE user_id = $4 RETURNING *',
+        [user_id, goal_name, goal_amount, target_date], (err, results) => {
             if (err) {
                 res.status(500).send(err);
                 client.release();
@@ -73,14 +90,14 @@ const editTransaction = async (req, res) => {
         })
 }
 
-const deleteTransaction = async (req, res) => {
+const deleteGoal = async (req, res) => {
     const client = await pool.connect();
 
-    const transaction_id = req.params.transaction_id;
+    const goal_id = req.params.goal_id;
     const user_id = parseInt(req.params.user_id);
 
-    await client.query('DELETE FROM transactions WHERE transaction_id = $1 AND user_id = $2',
-        [transaction_id, user_id], (err, results) => {
+    await client.query('DELETE FROM financial_goals WHERE goal_id = $1 AND user_id = $2',
+        [goal_id, user_id], (err, results) => {
              if (err) {
                 res.status(500).send(err);
                 client.release();
@@ -89,14 +106,17 @@ const deleteTransaction = async (req, res) => {
                 res.status(200).end();
                 client.release();
             }
+
     })
+
+
 }
 
 
 module.exports = {
-    getAllTransactions, 
-    getTransactionsById, 
-    createTransaction,
-    editTransaction,
-    deleteTransaction
+    getAllGoals, 
+    getGoalsById, 
+    createGoal,
+    editGoal,
+    deleteGoal
 }
