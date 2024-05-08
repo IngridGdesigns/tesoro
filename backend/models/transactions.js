@@ -5,7 +5,8 @@ const pool = require('../postgresConnection');
         Transactions
 
 *//// ///////////////////////////////
-// Gets all users table
+
+
 const getAllTransactions = async (req, res) => {
   const client = await pool.connect();
 
