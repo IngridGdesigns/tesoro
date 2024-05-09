@@ -32,18 +32,20 @@ app.get('/hello', (req, res) => {
   res.json({ info: 'Node.js, Express, and Postgres API, dont know if it will work' })
 })
 
-
 // Import - Set up all API routes
-
 const userRoutes = require('./routes/userRoutes');
 const accountRoutes = require('./routes/accountRoutes');
+const goalRoutes = require('./routes/goalsRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const transactionRoutes = require('./routes/transactionsRoutes');
 
 
 // // Use all API routes
 app.use('/api/users', userRoutes);
-app.use('api/accounts', accountRoutes)
-
-
+app.use('/api/accounts', accountRoutes);
+app.use('/api/goals', goalRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 
 app.listen(PORT, () => {
