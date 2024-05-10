@@ -4,12 +4,24 @@ const bodyParser = require('body-parser') //parsing body
 const cors = require('cors') //cors
 const morgan = require('morgan');//HTTP request logger middleware, generates logs for API request
 const app = express();
+const { validateAccessToken } = require('./middleware/auth0.middleware');
+const { auth, requiredScopes } = require('express-oauth2-jwt-bearer'); // auth0
 
-// const jwtCheck = auth({
-//   audience: 'https://tesoroAPI',
-//   issuerBaseURL: 'https://createmagic.us.auth0.com/',
-//   tokenSigningAlg: 'RS256'
-// });
+const {
+  AUTH0_CLIENT_ID,
+  AUTH0_CLIENT_SECRET,
+  AUTH0_AUDIENCE,
+  AUTH0_DOMAIN } = process.env
+
+if (!AUTH0_AUDIENCE || !AUTH0_DOMAIN || !AUTH0_CLIENT_SECRET) {
+  throw new Error('Environment variables are missing!');
+}
+
+const jwtCheck = auth({
+  audience: `${AUTH0_AUDIENCE}`,
+  issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
+  tokenSigningAlg: 'RS256'
+});
 
 const PORT = process.env.PORT || 3005;
 
@@ -29,15 +41,21 @@ app.use(function (req, res, next) {
   next();
 });
 
-// // // Read all library staff members
+
 app.get('/', (req, res) => {
   console.log('welcome home');
   res.json('hello and welcome to home for now')
 });
 
-app.get('/hello', (req, res) => {
+app.get('/hello', validateAccessToken, (req, res) => {
   res.json({ info: 'Node.js, Express, and Postgres API, dont know if it will work' })
 })
+
+app.get('/admin', validateAccessToken, (req, res) => {
+  const message =  { text: "This is an admin message." };
+
+  res.status(200).json(message);
+});
 
 // Import - Set up all API routes
 const userRoutes = require('./routes/userRoutes');
@@ -61,33 +79,3 @@ app.use('/api/transactions', transactionRoutes);
 app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`);
 });
-
-
-// exports.onExecutePostLogin = async (event, api) => {
-//   // Check if the user has a role assigned
-//   if (event.authorization && event.authorization.roles && event.authorization.roles.length > 0) {
-//     return;
-//   }
-
-
-
-//   make every user a user
-//   // Create management API client instance
-//   const ManagementClient = require("auth0").ManagementClient;
-
-//   const management = new ManagementClient({
-//     domain: event.secrets.DOMAIN,
-//     clientId: event.secrets.CLIENT_ID,
-//     clientSecret: event.secrets.CLIENT_SECRET,
-//     audience: event.secrets.AUDIENCE,
-//   });
-  
-//   const params =  { id : event.user.user_id };
-//   const data = { "roles" : ['rol_D8qPmzK7DTR9OKPS'] };
-
-//   try {
-//     await management.users.assignRoles(params, data);
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
