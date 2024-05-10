@@ -39,22 +39,67 @@ const getTransactionsById = async (req, res) => {
   });
 };
 
+// const createTransaction = async (req, res) => { // without budget
+//     const client = await pool.connect();
+
+//     const { user_id, account_id, description, category_id, amount, goal_id } = req.body;
+    
+//     await client.query('INSERT INTO transactions(user_id, account_id, description, category_id, amount, goal_id) VALUES ($1, $2 $3, $4, $5, $6) RETURNING *',
+//         [user_id, account_id, description, category_id, amount, goal_id], (err, results) => {
+//              if (err) {
+//                 res.status(500).send(err);
+//                 client.release();
+//                 } else { 
+//                 res.status(200).json(results.rows[0]);
+//                 client.release();
+//                 }
+//         })
+// }
+
 const createTransaction = async (req, res) => {
     const client = await pool.connect();
 
     const { user_id, account_id, description, category_id, amount, goal_id } = req.body;
-    
-    await client.query('INSERT INTO transactions(user_id, account_id, description, category_id, amount, goal_id) VALUES ($1, $2 $3, $4, $5, $6) RETURNING *',
-        [user_id, account_id, description, category_id, amount, goal_id], (err, results) => {
-             if (err) {
-                res.status(500).send(err);
-                client.release();
-                } else { 
-                res.status(200).json(results.rows[0]);
-                client.release();
-                }
-        })
+
+    try {
+      // await client.query('BEGIN'); // Start a transaction
+      const queryText = `
+            WITH new_transaction AS (
+                INSERT INTO transactions(user_id, account_id, description, category_id, amount, goal_id)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING *
+            )
+            UPDATE budget AS b
+            SET amount = amount - (SELECT amount FROM new_transaction)
+            WHERE user_id = $1 AND category_id = $4
+        `;
+
+        const { rows } = await client.query(queryText, [user_id, account_id, description, category_id, amount, goal_id]);
+        res.status(200).json(rows[0]);
+
+        // Insert the transaction into the transactions table
+        // const transactionResult = await client.query(
+        //     'INSERT INTO transactions(user_id, account_id, description, category_id, amount, goal_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        //     [user_id, account_id, description, category_id, amount, goal_id]
+        // );
+
+        // // Update the corresponding budget in the budget table
+        // await client.query(
+        //     'UPDATE budget SET amount = amount - $1 WHERE category_id = $2',
+        //     [amount, category_id]
+        // );
+
+        // await client.query('COMMIT'); // Commit the transaction
+        // res.status(200).json(transactionResult.rows[0]);
+    } catch (err) {
+        await client.query('ROLLBACK'); // Rollback the transaction if an error occurs
+        console.error('Error creating transaction:', err);
+        res.status(500).send(err);
+    } finally {
+        client.release();
+    }
 }
+
 
 const editTransaction = async (req, res) => {
     const client = await pool.connect();
