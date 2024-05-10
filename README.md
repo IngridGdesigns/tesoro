@@ -7,13 +7,18 @@ A personal finance management that will allows users to track their income, expe
 
 ## Tools and Technologies
 
-Database: [Postgresql (postgesql app)](https://postgresapp.com/),
-Authorization/authentication: [Auth0](https://auth0.com/?utm_content=usbranded-auth0-auth0homepage&utm_source=google&utm_campaign=amer_namer_can_all_ciam-all_dg-ao_auth0_display_google_static-image_retarget_SitewideRemarketing_utm2&utm_medium=cpc&utm_id=aNK4z000000UCTUGA4&gad_source=1&gclid=EAIaIQobChMI6su00OWChgMVARitBh3Oewg1EAAYASAAEgIWafD_BwE)
-Backend: [ExpressJS](https://expressjs.com/en/starter/installing.html),
-Frontend: [Vite+React](https://vitejs.dev/guide/), [React Hook Form](https://react-hook-form.com/get-started)
-UI components: [Joy UI](https://mui.com/joy-ui/getting-started/installation/)
+- Database: [Postgresql (postgesql app)](https://postgresapp.com/),
+- Authorization/authentication: [Auth0](https://auth0.com/?utm_content=usbranded-auth0-auth0homepage&utm_source=google&utm_campaign=amer_namer_can_all_ciam-all_dg-ao_auth0_display_google_static-image_retarget_SitewideRemarketing_utm2&utm_medium=cpc&utm_id=aNK4z000000UCTUGA4&gad_source=1&gclid=EAIaIQobChMI6su00OWChgMVARitBh3Oewg1EAAYASAAEgIWafD_BwE)
+- Backend: [ExpressJS](https://expressjs.com/en/starter/installing.html),
+- Frontend: [Vite+React](https://vitejs.dev/guide/), [React Hook Form](https://react-hook-form.com/get-started)
+- UI components: [Joy UI](https://mui.com/joy-ui/getting-started/installation/)
 
-https://www.kirupa.com/html5/emoji.htm
+## Installation
+
+- Make sure you update your node and npm, node to version lts/iron
+- Run ```nvm use```, it will make sure you run the right version of node
+- Go to the backend folder and run ```npm install``
+- Then run npm start
 
 ## Configure Vite config to talk to server
 
@@ -39,7 +44,7 @@ you will use '/api' as your url to fetch your data, example:
  ```
 
 
-
+- https://www.kirupa.com/html5/emoji.htm
 
 
 UPDATE accounts
