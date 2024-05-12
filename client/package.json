@@ -11,14 +11,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.2.4",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/joy": "^5.0.0-beta.36",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
     "localforage": "^1.10.0",
     "luxon": "^3.4.4",
     "match-sorter": "^6.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.51.4",
     "react-router-dom": "^6.23.0",
     "sort-by": "^0.0.2"
   },
