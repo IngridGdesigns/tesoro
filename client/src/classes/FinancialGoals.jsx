@@ -1,47 +1,97 @@
-import React, { Component } from 'react';
+/* eslint-disable react/prop-types */
+import { Component } from 'react';
 import Table from '@mui/joy/Table';
-import { DateTime } from 'luxon';
+import axios from 'axios';
+// import { withAuth0 } from "@auth0/auth0-react";
+import AddGoalForm from './forms/createGoal';
+import { withAuth0 } from '@auth0/auth0-react';
 
-// function formatDate(date) {
-//     const newDate = DateTime.fromISO(date)
-//     return newDate; //formatting date?
-// }
 
 class FinancialGoals extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            goals: []
+            goals: [],
+            user: null,
         };
     }
 
     componentDidMount() {
-        this.fetchData();
+    
+        this.handleGetGoals();
+
     }
 
-    fetchData = async () => {
-        try {
-            const response = await fetch(`/api/goals`);
-            const newData = await response.json();
-            this.setState({ goals: newData });
-        } catch (error) {
-            console.error('Error fetching data:', error);
+    handleGetGoals = async () => {
+        const { getAccessTokenSilently } = this.props.auth0
+        // const accessToken = getAccessTokenSilently();
+         // eslint-disable-next-line react/prop-types
+        const { user } = this.props.auth0; // Use the custom hook
+
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessTokenSilently()}`
+            }
         }
+        
+    try {
+        const response = await axios.get(`/api/goals/${user}`, options);
+        this.setState({ goals: response.data });
+    } catch (error) {
+        console.error('Error fetching data:', error);
     }
+}
+
+    handleCreateGoal = async (newGoal) => {
+     
+        try {
+            const response = await axios.post('/api/goals', newGoal, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+
+        this.setState((prevState) => ({
+            goals: [...prevState.goals, response.data],
+        }));
+            
+        } catch (error) {
+            console.error('Error creating goal', error);
+            this.setState({
+                error: error.message
+            })
+        }
+}
+
 
     render() {
-        return (
-            <div>
-                <h1>Goals</h1>
+        // eslint-disable-next-line react/prop-types
+        const { user, isLoading } = this.props.auth0; // Use the custom hook
+        
 
-                create a goal
+        if (isLoading) {
+            return <div>Loading...</div>;
+        }
+
+        return (
+
+            <div>
+                {/* <img src={user.picture} alt={user.name} /> */}
+                <h1>{user.name} Goals</h1>
+                
+                <div>
+                    <h4>Create a goal</h4>
+                    <AddGoalForm user={user} handleCreateGoal={this.handleCreateGoal}/>
+                </div>
+               
 
                 <h2>Existing Goals</h2>
                 <Table aria-label="basic table">
                     <thead>
                         <tr>
-                            <th style={{ width: '10%' }}>goalid</th>
-                            <th>name</th>
+                            {/* <th style={{ width: '10%' }}>goalid</th> */}
+                            <th style={{width: '15%'}}>name</th>
                             <th>amount</th>
                             <th>target date</th>
                             <th>current amount</th>
@@ -51,7 +101,7 @@ class FinancialGoals extends Component {
                     <tbody>
                         {this.state.goals.map((goal, key) => (
                             <tr key={key}>
-                                <td>id is: {goal.goal_id}</td>
+                                {/* <td>id is: {goal.goal_id}</td> */}
                                 <td>{goal.goal_name}</td>
                                 <td>{goal.goal_amount}</td>
                                 <td>{goal.target_date}</td>
@@ -67,102 +117,6 @@ class FinancialGoals extends Component {
     }
 }
 
-export default FinancialGoals;
+// eslint-disable-next-line react-refresh/only-export-components
+export default withAuth0(FinancialGoals);
 
-      {/* {this.state.goals.map((goal, key) => (
-                    <tr key={key}>
-                        <td>id is: {goal.goal_id}</td>
-                        <td>goal amount is: {goal.goal_amount}</td>
-                        name is: {goal.goal_name}
-                   </tr>
-                ))} */}
-
-
-// import React, { useEffect, useState } from 'react';
-
-
-// function FinancialGoals() {
-//     const [message, setMessage] = useState('');
-
-//       useEffect(() => {
-//           const fetchData = async () => {
-//               const response = await fetch(`/api/goals`);
-//               const newData = await response.json();
-//               setMessage(newData);
-//           }
-//           fetchData();
-//         //   const s = [...message];
-//           console.log(message);
-//   }, []);
-
-    
-//     return (
-//     Object.entries(message).map(([key, value], i) => {
-//             return (
-//                 <div key={key}>
-                    
-//                     <div>id is: {value.goal_id}</div>
-//                     goal amount is: {value.goal_amount}
-//                     name is: {value.goal_name}
-//                 </div>
-//             )
-//         })
-//     );
-// }
-
-// export default FinancialGoals;
-
-// import React, {Component} from 'react';
-
-// class FinancialGoals extends Component {
-    
-
-//     componentDidMount() {
-//         this.handleGetGoals();
-//     }
-
-//     handleGetGoals() {
-//         axios.get('/api/goals', {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             }
-//         }).then(response => {
-//             this.setState({
-//                 goals: response.data,
-//                 loading: false,
-//                 error: null
-//             });
-//         }).catch(error => {
-//             this.setState({
-//                 goals: [],
-//                 loading: false,
-//                 error: 'Error fetching financial goals'
-//             })
-//         })
-//     }
-
-
-
-
-
-//     render() {
-//         const { goals, loading, error } = this.state;
-        
-//         if (loading) {
-//             return <div>Loading...</div>
-//         }
-
-//         if (error) {
-//             return <div>Error: {error}</div>
-//         }
-//         return (
-//             <div>
-//                 <h1>Financial Goals</h1>
-
-//             </div>
-//         )
-        
-//     }
-// }
-
-// export default FinancialGoals;
