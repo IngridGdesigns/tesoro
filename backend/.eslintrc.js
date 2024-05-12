@@ -5,6 +5,7 @@ module.exports = {
         "jest": true
   },
     "extends": [
+        // 'plugin:react/recommended',
         'eslint:recommended',
         'plugin:prettier/recommended'
     ],
