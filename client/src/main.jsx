@@ -1,58 +1,33 @@
-import React from 'react'
+// import React, { createRoot } from 'react'
 import ReactDOM from 'react-dom/client'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import Dashboard, {dashboardLoader} from './routes/Dashboard';
-// import App from './App.jsx'
-import './index.css'
-import ErrorPage from './pages/error-page';
-import Contact from './routes/contact';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Profile from './pages/Profile';
-import FinancialGoals from './classes/FinancialGoals';
+import App from './App.jsx'
+import { Auth0Provider } from '@auth0/auth0-react';
+// import { useRedirectCallback } from "./Auth0ProviderWithNavigate"
 
-
-const router = createBrowserRouter([
-  {
-    path: '/', 
-    element: <Landing />,
-  },
- {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
-    errorElement: <ErrorPage />,
-    loader: dashboardLoader,
-    children: [
-      {
-        path: "contacts/:contactId",
-        element: <Contact />,
-      },
-      {
-        path: "/dashboard/profile",
-        element: <Profile />,
-      },
-      {
-        path: "/dashboard/goals",
-        element: <FinancialGoals />
-      }
-    ],
-  },
-  {
-    path: "*", 
-    errorElement: <ErrorPage />
-  }
-]);
+const domain = import.meta.env.VITE_REACT_APP_AUTH0_DOMAIN;
+const clientId = import.meta.env.VITE_REACT_APP_AUTH0_CLIENT_ID;
+const redirectUri = import.meta.env.VITE_REACT_APP_AUTH0_CALLBACK_URL;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-    {/* // <App /> */}
-  </React.StrictMode>,
-)
+  <Auth0Provider
+    domain={domain}
+    clientId={clientId}
+    authorizationParams={{
+      redirect_uri: window.Location.origin || redirectUri,
+    }}
+  >
+    <App/>
+  </Auth0Provider>
+);
+
+
+// ReactDOM.createRoot(document.getElementById('root')).render(
+//   <React.StrictMode>
+//     {/* <RouterProvider router={router} /> */}
+//     <BrowserRouter>
+//     <Auth0ProviderWithNavigate>
+//       <App />
+//       </Auth0ProviderWithNavigate>
+//     </BrowserRouter>
+//   </React.StrictMode>,
+// )
