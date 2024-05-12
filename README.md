@@ -53,9 +53,8 @@ DB_PORT=5433
 - Save your changes
 - To protect your API, you must register an API using the [Auth0 Dashboard](https://auth0.com/docs/get-started/auth0-overview/set-up-apis)
 
-cant see gif...
 
-![](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/createNewApi.gif)
+<img width="400" height="250" alt="create auth0 api" src="instructions/creatingNewApi.gif)" />
 
 
 ### Env file in client side
