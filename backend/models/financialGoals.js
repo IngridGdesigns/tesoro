@@ -64,7 +64,7 @@ const createGoal = async (req, res) => {
     await client.query('INSERT INTO financial_goals(user_id, goal_name, goal_amount, target_date) VALUES ($1, $2 $3, $4) RETURNING *',
         [user_id, goal_name, goal_amount, target_date], (err, results) => {
              if (err) {
-                res.status(500).send(err);
+                res.status(500).send(err, 'there was an error');
                 client.release();
                 } else { 
                 res.status(200).json(results.rows[0]);
