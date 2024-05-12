@@ -55,7 +55,7 @@ DB_PORT=5433
 
 cant see gif...
 
-<img src="https://github.com/IngridGdesigns/tesoro/blob/main/instructions/createNewApi.gif"/>
+![](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/createNewApi.gif)
 
 
 ### Env file in client side
