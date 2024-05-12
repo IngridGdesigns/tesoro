@@ -26,7 +26,7 @@ A personal finance management that will allows users to track their income, expe
 - Create a new application (select Single Page Application, Technology Javascript/React Router 6)
 - Select "Applications" and then select your application. Obtain your Auth0 domain and clientID from the created application. 
 
-<!-- <img src="https://github.com/IngridGdesigns/tesoro/blob/main/instructions/createNewApi.gif" width="50%" height="50%"> -->
+![instructions/createAppOnAuth0.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/createAppOnAuth0.gif)
 
 - Create a .env file and add to .gitignore and commit the change, then store those secrets in variables in an .env file see /backend/.env.example
 - Also store your postgresql database secrets here too
@@ -52,7 +52,6 @@ DB_PORT=5433
 - Make sure to set allowed callback URL, logout Urls and Allowed Web Origins in the Auth0 app settings to ```http://localhost:5173/ ``` This will help you navigate to your pages, also add your domain to Allowed Web Origins: https://YOUR_DOMAIN_NAME.auth0.com
 - Save your changes
 - To protect your API, you must register an API using the [Auth0 Dashboard](https://auth0.com/docs/get-started/auth0-overview/set-up-apis)
-
 
 ![instructions/creatingNewApi.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/creatingNewApi.gif)
 
