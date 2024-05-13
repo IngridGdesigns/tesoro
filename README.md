@@ -14,11 +14,27 @@ A personal finance management that will allows users to track their income, expe
 
 ## Installation
 
+- Clone project
+![instructions/clone.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/clone.gif)
+
 - Make sure you update your node and npm, node to version lts/iron
 - Run ```nvm use```, it will make sure you run the right version of node
 - Go to the backend folder and run ```npm install``
-- Then run npm start, make sure you can access routes
-- Head over to client folder and run ```npm install```
+- Then run ```npm start```, make sure you can access route ('/') which will display a welcome message: 'hello and welcome to home for now'
+
+### Postgres
+
+- Download and install postgres
+
+![instructions/postgres.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/postgres.gif) 
+
+- Open postges app and open a database by double clicking it, it will open a terminal window.
+- Type the following command: 
+```CREATE DATABASE databasename;```, a database will be created.
+- Type command ```\c yourDatabase``` to head over to your new database.
+- To dump Sql file in your yourDatabase,  
+
+- Next step is to head over to Auth0
 
 ### Auth0
 
@@ -74,9 +90,9 @@ VITE_REACT_APP_API_SERVER_URL=http://localhost:YourServerURL
 
 ```
 
-## Configure Vite config to talk to server
+### Configure Vite config to talk to server
 
-- Open the vite.config.js file and add your server url (your express api PORT), any request that starts with /api on your development server will be forwarded to http://localhost:3005.
+- Open the vite.config.js file and add your server url (your Express API PORT), any request that starts with /api on your development server will be forwarded to http://localhost:3005.
 
 ```javascript
 export default defineConfig({
@@ -94,6 +110,8 @@ you will use '/api' as your url to fetch your data, example:
 ```javascript
  const response = await fetch(`/api/goals`); <-- make sure it matches your server route
  ```
+
+- After frontend setup, go to the backend folder and run ```npm start``` and then go to client folder and run ```npm run dev```, you should see the landing page and button to login, Auth0 will take you to their log-in or registration page. 
 
 
 - https://www.kirupa.com/html5/emoji.htm
