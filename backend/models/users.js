@@ -29,7 +29,7 @@ const getUserById = async (req, res) => {
 
   const user_id = parseInt(req.params.user_id);
 
-  await client.query('SELECT * FROM users WHERE user_id = $1', [user_id], (err, results) => {
+  await client.query('SELECT * FROM users WHERE user_id = $1 AND user_sub = $2', [user_id, user_sub], (err, results) => {
     if (err) {
       res.status(500).send(err);
       client.release();
@@ -40,25 +40,37 @@ const getUserById = async (req, res) => {
   });
 };
 
+
 const createUser = async (req, res) => {
   const client = await pool.connect();
   const { name, username, email, password, user_sub } = req.body;
 
-  await client.query('INSERT INTO users(name, username, email, password, user_sub) VALUES ($1, $2, $3, $4, $5) RETURNING *', 
+  await client.query('INSERT INTO users(name, username, email, password, user_sub) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING RETURNING *', 
     [name, username, email, password, user_sub], (err, results) => {
       if (err) {
         if (err.code === '23505') { // Unique constraint violation
-          res.status(400).send('Email or username already exists');
+          res.status(204).send('Email or username already exists');
+          client.release();
         } else {
           res.status(500).send('Server error');
         }
         client.release();
       } else {
+          console.log('201, user was created', username, email)
           res.status(200).json(results.rows[0]);
           client.release()
         }
     })
 }
+
+// /* Retrieve user profile from db */
+// const getUserFromDB = async (req, res) => {
+//   // const email = [ "%" + req.query.email + "%"]
+//   const email = String(req.query.email)
+//   pool.query("SELECT * FROM users WHERE email = $1", [ email ], (err, results) => {
+//     res.json(results.rows)
+//   });
+// });
 
 
 const editUserById = async (req, res) => {

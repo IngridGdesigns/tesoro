@@ -28,11 +28,11 @@ A personal finance management that will allows users to track their income, expe
 
 ![instructions/postgres.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/postgres.gif) 
 
-- Open postges app and open a database by double clicking it, it will open a terminal window.
+- Open postges app and open a database by double clicking on one 'template', it will open a terminal window.
 - Type the following command: 
-```CREATE DATABASE databasename;```, a database will be created.
+```CREATE DATABASE yourDatabase;```, a database will be created.
 - Type command ```\c yourDatabase``` to head over to your new database.
-- To dump Sql file in your yourDatabase,  
+- Use the following command to import tables into your database,  
 
 - Next step is to head over to Auth0
 
