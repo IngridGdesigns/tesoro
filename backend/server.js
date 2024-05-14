@@ -8,7 +8,6 @@ const { validateAccessToken } = require('./middleware/auth0.middleware');
 const { auth, requiredScopes } = require('express-oauth2-jwt-bearer'); // auth0
 
 const {
-  AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET,
   AUTH0_AUDIENCE,
   AUTH0_DOMAIN } = process.env
@@ -36,7 +35,7 @@ app.use(cors());
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  // res.send({ "msg": "This has CORS enabled 🎈" });
+  res.send({ "msg": "This has CORS enabled 🎈!!" });
   // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers');
   next();
 });
@@ -48,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/hello', validateAccessToken, (req, res) => {
-  res.json({ info: 'Node.js, Express, and Postgres API, dont know if it will work' })
+  res.json({ info: 'Node.js, Express, and Postgres API' })
 })
 
 app.get('/admin', validateAccessToken, (req, res) => {
@@ -64,7 +63,6 @@ const goalRoutes = require('./routes/goalsRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const transactionRoutes = require('./routes/transactionsRoutes');
 
-
 // // Use all API routes
 app.use('/api/users', userRoutes);
 app.use('/api/accounts', accountRoutes);
@@ -72,9 +70,9 @@ app.use('/api/goals', goalRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 
-// app.get('/authorized', jwtCheck, function (req, res) {
-//     res.send('Secured Resource');
-// });
+app.get('/authorized', jwtCheck, function (req, res) {
+    res.send('Secured Resource');
+});
 
 app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`);
