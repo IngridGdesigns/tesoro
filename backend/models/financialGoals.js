@@ -43,10 +43,11 @@ const getGoalsById = async (req, res) => {
 const getGoalsByUserId = async (req, res) => {
   const client = await pool.connect();
 
-  const user_id = parseInt(req.params.user_id);
+  const user_sub = parseInt(req.params.user_sub);
 
-  await client.query('SELECT * FROM financial_goals WHERE user_id = $1', [user_id], (err, results) => {
+  await client.query('SELECT * FROM financial_goals WHERE user_sub = $1', [user_sub], (err, results) => {
     if (err) {
+      console.log('you got an error', err.message, err.body, 'done')
       res.status(500).send(err);
       client.release();
     } else { 
@@ -59,19 +60,38 @@ const getGoalsByUserId = async (req, res) => {
 const createGoal = async (req, res) => {
     const client = await pool.connect();
 
-    const { user_id, goal_name, goal_amount, target_date } = req.body;
-    
-    await client.query('INSERT INTO financial_goals(user_id, goal_name, goal_amount, target_date) VALUES ($1, $2 $3, $4) RETURNING *',
-        [user_id, goal_name, goal_amount, target_date], (err, results) => {
-             if (err) {
-                res.status(500).send(err, 'there was an error');
-                client.release();
-                } else { 
-                res.status(200).json(results.rows[0]);
-                client.release();
-                }
-        })
+    const { user_sub, user_id, goal_name, goal_amount, target_date } = req.body;
+
+    try {
+        const result = await client.query('INSERT INTO financial_goals(user_sub, user_id, goal_name, goal_amount, target_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [user_sub, user_id, goal_name, goal_amount, target_date]);
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error creating goal:', error);
+        res.status(500).send('Server error');
+    } finally {
+        client.release();
+    }
 }
+
+
+// const createGoal = async (req, res) => {
+//     const client = await pool.connect();
+
+//     const { user_sub, user_id, goal_name, goal_amount, target_date } = req.body;
+    
+//     await client.query('INSERT INTO financial_goals(user_sub, user_id, goal_name, goal_amount, target_date) VALUES ($1, $2 $3, $4, $5) RETURNING *',
+//         [user_sub, user_id, goal_name, goal_amount, target_date], (err, results) => {
+//              if (err) {
+//                 res.status(500).send(err);
+//                 client.release();
+//                 } else { 
+//                 res.status(200).json(results.rows[0]);
+//                 client.release();
+//                 }
+//         })
+// }
 
 const editGoal = async (req, res) => {
     const client = await pool.connect();
