@@ -38,7 +38,30 @@ Features:
 - Type command ```\c yourDatabase``` to head over to your new database.
 - Use the following command to import tables into your database,  
 
-- Next step is to head over to Auth0
+- Next step is to head over to Auth0...but before that, quick notes on using Auth0 with classes: const { getAccessTokenSilently} = this.props.auth0;
+
+1. If planning to use [class components in React visit](https://github.com/auth0/auth0-react/blob/main/EXAMPLES.md#use-with-a-class-component), essentially you need to wrap your class component with the withAuth0 higher order component to add the auth0 property to Class components:
+
+```javascript
+
+import React, { Component } from 'react';
+import { withAuth0 } from '@auth0/auth0-react';
+
+class Profile extends Component {
+  render() {
+    // `this.props.auth0` has all the same properties as the `useAuth0` hook
+    const { user, getAccessTokenSilently } = this.props.auth0; <-- getAccessTokenSilently is Auth0s way to request token to perform CRUD and get data, fyi >
+
+    return <div>Hello {user.name}</div>;
+  }
+}
+
+export default withAuth0(Profile);
+
+```
+
+1. You might get errors if trying to use Router Dom Loader hooks, so make sure you wrap them or use another workaround (cool feature but not to use with class components at the moment, 😿), But hey, cheer up, your app will be awesome!
+
 
 ### Auth0
 
@@ -74,6 +97,8 @@ DB_PORT=5433
 - To protect your API, you must register an API using the [Auth0 Dashboard](https://auth0.com/docs/get-started/auth0-overview/set-up-apis)
 
 ![instructions/creatingNewApi.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/creatingNewApi.gif)
+
+will include more Auth0 resources at the end of the file.. 
 
 
 ### Env file in client side
@@ -117,6 +142,77 @@ you will use '/api' as your url to fetch your data, example:
 
 - After frontend setup, go to the backend folder and run ```npm start``` and then go to client folder and run ```npm run dev```, you should see the landing page and button to login, Auth0 will take you to their log-in or registration page. 
 - After that you will encounter the user Dashboard
+
+## Auth0 Resources WIP
+
+1. If planning to use [class components in React visit](https://github.com/auth0/auth0-react/blob/main/EXAMPLES.md#use-with-a-class-component)
+1. To distiguish between a user and admin, use [claims check](https://github.com/auth0/auth0-react/blob/main/EXAMPLES.md#protecting-a-route-with-a-claims-check)
+1. [Auth API Explorer](https://auth0.com/docs/api/authentication?javascript#get-user-info)
+1. [How to make API calls to the Auth0 Management API.](https://auth0.com/docs/quickstart/spa/react/02-calling-an-api)
+1. [Getting Started with Auth0 series](https://auth0.com/docs/videos/get-started-series)
+1. Highlights:
+
+   1. [Configuring Scopes](https://auth0.com/docs/get-started/architecture-scenarios/spa-api/part-2#configure-the-authorization-extension)
+   1. [Rules](https://auth0.com/docs/rules)
+   1. [Customizaing error pages](https://auth0.com/docs/videos/get-started-series/brand-emails-and-error-pages)
+   1. [Adding permission to users (assigning roles)](https://community.auth0.com/t/how-do-i-assign-permissions-to-users/72278)
+   
+   1. [Management API tutorial -](https://www.youtube.com/watch?v=VNgKNXgs7fQ)
+   - Define your roles, Admin and Users and add permissions to each role
+   - Go to Actions and create a [new action to automatically assign role to users](https://auth0.com/blog/assign-default-role-on-sign-up-with-actions/)
+    
+
+```javascript
+
+    exports.onExecutePostLogin = async (event, api) => {
+
+
+   // Check if the user has a role assigned 
+  if (event.authorization && event.authorization.roles && event.authorization.roles.length > 0) {
+    return;
+  }
+
+  // Create management API client instance 
+  const ManagementClient = require("auth0").ManagementClient;
+
+  const management = new ManagementClient({
+    domain: event.secrets.DOMAIN,
+    clientId: event.secrets.CLIENT_ID,
+    clientSecret: event.secrets.CLIENT_SECRET,
+    audience: event.secrets.AUDIENCE,
+  });
+  
+  const params =  { id : event.user.user_id };
+  const data = { "roles" : ['YOUR ROLE ID FOR ROLE YOU CREATED'] };
+
+  try {
+    await management.users.assignRoles(params, data);
+  } catch (e) {
+    console.log(e);
+  }
+  ```
+
+# Using Claims check
+
+```javascript 
+
+   exports.onExecutePostLogin = async (event, api) => {
+   const namespace = `roleType`
+   if (event.authorization) {
+    api.idToken.setCustomClaim(`${namespace}`, event.authorization.roles);
+    api.accessToken.setCustomClaim(`${namespace}`, event.authorization.roles);
+
+    }}
+
+```
+  
+ - Yow will be able to view, for example admin or users just make sure you define the roles before to view your users roles.
+ - You can curl to see your user or console.log user in Profile page to see information
+
+
+
+
+
 
 - https://www.kirupa.com/html5/emoji.htm
 
