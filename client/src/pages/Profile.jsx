@@ -4,7 +4,10 @@ import { useAuth0 } from '@auth0/auth0-react';
 
 const UserProfile = () => {
     const { user, isAuthenticated, isLoading } = useAuth0();
-    console.log(user.name)
+    // console.log(user.name)
+    if (!user) {
+        return null;
+    }
 
     // if (user.assignedRoles !== 'Admin') {
     //     console.log('not admin')
