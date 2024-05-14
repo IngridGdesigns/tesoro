@@ -10,6 +10,8 @@ export default function ErrorPage() {
             <p>Sorry, an error ocurred</p>
             <span role="img" aria-label="weary cat" className="emoji">🙀</span>
             <p>Page: <i>{error.statusText || error.message}</i></p>
+            <p>Error Status: <i>{error.status}</i></p>
+            <p>Error Stack: <i>{error.stack}</i></p>
             <Link to={`/`}>Return Home</Link>
             <Outlet/>
         </div>
