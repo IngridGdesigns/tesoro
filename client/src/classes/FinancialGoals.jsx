@@ -41,14 +41,13 @@ class FinancialGoals extends Component {
         }
 }
 
-handleCreateGoal = async (newGoal) => {
-    const { getAccessTokenSilently} = this.props.auth0;
+    handleCreateGoal = async (newGoal) => {
+    const { getAccessTokenSilently } = this.props.auth0;
    
+        //had to destructure, there may be a bug, need more coffee <--- 5/14/24
     const { user_id, user_sub, goal_name, goal_amount, target_date } = newGoal;
 
     try {
-        // const token = await getAccessTokenSilently();
-
         const response = await fetch('/api/goals', {
             method: 'POST',
             headers: {
