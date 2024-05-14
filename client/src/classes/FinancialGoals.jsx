@@ -41,31 +41,39 @@ class FinancialGoals extends Component {
         }
 }
 
-    handleCreateGoal = async (newGoal) => {
-        const { getAccessTokenSilently } = this.props.auth0;
-        const {user_id, goal_name, goal_amount, target_date } = newGoal;
+handleCreateGoal = async (newGoal) => {
+    const { getAccessTokenSilently} = this.props.auth0;
+   
+    const { user_id, user_sub, goal_name, goal_amount, target_date } = newGoal;
 
-        try {
-            const response = await axios.post('/api/goals', {
+    try {
+        // const token = await getAccessTokenSilently();
+
+        const response = await fetch('/api/goals', {
+            method: 'POST',
             headers: {
-                    "Content-Type": "application/json",
-                    'Authorization': `Bearer ${getAccessTokenSilently()}`
-                },
-            body: JSON.stringify({user_id, goal_name, goal_amount, target_date})
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessTokenSilently()}`
+            },
+            body: JSON.stringify({ user_id, user_sub, goal_name, goal_amount, target_date })
         });
 
-        this.setState((prevState) => ({
-            goals: [...prevState.goals, response.data],
-        }));
-            
-        } catch (error) {
-            console.error('Error creating goal', error);
-            this.setState({
-                error: error.message
-            })
+        if (!response.ok) {
+            throw new Error('Failed to create goal');
         }
-}
 
+        const data = await response.json();
+
+        this.setState((prevState) => ({
+            goals: [...prevState.goals, data],
+        }));
+    } catch (error) {
+        console.error('Error creating goal', error);
+        this.setState({
+            error: error.message
+        });
+    }
+}
 
     render() {
         // eslint-disable-next-line react/prop-types
