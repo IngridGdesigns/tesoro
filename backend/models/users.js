@@ -10,7 +10,7 @@ const pool = require('../postgresConnection');
 const getAllUsers = async (req, res) => {
   const client = await pool.connect();
 
-  client.query('SELECT * FROM users', (err, results) => {
+  await client.query('SELECT * FROM users', (err, results) => {
     if (err) {
       console.log('error oh noes!!', err);
       res.status(500).send('Server error');
