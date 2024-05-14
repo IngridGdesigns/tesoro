@@ -2,7 +2,7 @@
 import { Component } from 'react';
 import Table from '@mui/joy/Table';
 import axios from 'axios';
-// import { withAuth0 } from "@auth0/auth0-react";
+
 import AddGoalForm from './forms/createGoal';
 import { withAuth0 } from '@auth0/auth0-react';
 
@@ -12,7 +12,7 @@ class FinancialGoals extends Component {
         super(props);
         this.state = {
             goals: [],
-            user: null,
+            user: '',
         };
     }
 
@@ -23,11 +23,8 @@ class FinancialGoals extends Component {
     }
 
     handleGetGoals = async () => {
-        const { getAccessTokenSilently } = this.props.auth0
-        // const accessToken = getAccessTokenSilently();
+        const { user, getAccessTokenSilently } = this.props.auth0
          // eslint-disable-next-line react/prop-types
-        const { user } = this.props.auth0; // Use the custom hook
-
         const options = {
             headers: {
                 'Content-Type': 'application/json',
@@ -35,21 +32,26 @@ class FinancialGoals extends Component {
             }
         }
         
-    try {
-        const response = await axios.get(`/api/goals/${user}`, options);
-        this.setState({ goals: response.data });
-    } catch (error) {
+        try {
+            const response = await axios.get(`/api/goals/${user}`, options);
+            this.setState({ goals: response.data }); 
+        }
+        catch (error) {
         console.error('Error fetching data:', error);
-    }
+        }
 }
 
     handleCreateGoal = async (newGoal) => {
-     
+        const { getAccessTokenSilently } = this.props.auth0;
+        const {user_id, goal_name, goal_amount, target_date } = newGoal;
+
         try {
-            const response = await axios.post('/api/goals', newGoal, {
+            const response = await axios.post('/api/goals', {
             headers: {
-                "Content-Type": "application/json",
-            }
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${getAccessTokenSilently()}`
+                },
+            body: JSON.stringify({user_id, goal_name, goal_amount, target_date})
         });
 
         this.setState((prevState) => ({
@@ -68,6 +70,10 @@ class FinancialGoals extends Component {
     render() {
         // eslint-disable-next-line react/prop-types
         const { user, isLoading } = this.props.auth0; // Use the custom hook
+
+        if (!user) {
+            return null;
+        }
         
 
         if (isLoading) {
