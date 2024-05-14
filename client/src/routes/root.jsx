@@ -1,15 +1,14 @@
 import { Outlet, Link} from "react-router-dom";
-import FinancialGoals from "../classes/FinancialGoals";
-import Dashboard from "../pages/Dashboard";
-import { useAuth0 } from "@auth0/auth0-react";
-
+// import FinancialGoals from "../classes/FinancialGoals";
+// import Dashboard from "../pages/Dashboard";
+import { useAuth0 } from '@auth0/auth0-react'
 
 function postToDb(user, getAccessTokenSilently) {
     let name = user.name;
     let email = user.email;
     let username = user.nickname;
     let user_sub = user.sub;
-    let password = '123456'
+    let password = '123456' // should use brcypt, placeholder (wont store secrets here)
 
     var options = {
         method: 'POST',
@@ -20,14 +19,26 @@ function postToDb(user, getAccessTokenSilently) {
     fetch(`/api/users`, options) // kept getting errors with axios  -- refactor later --
         .then(response => response.json())
         .then(data => console.log(data))
+        .catch((error) => console.error('Logging Error', error))
+    // try {
+    //     const response = await fetch(`/api/users`, options); // kept getting errors with axios  -- refactor later --
+    //     const data = await response.json();
+    //     console.log(data);
+    // } catch (error) {
+    //     console.error('Logging Error', error);
+    //     return;
+    // }
 }
 
 
-async function Root() {
-    const { isLoading, user, getAccessTokenSilently } = useAuth0();
+function Root() {
+    const { isLoading, user, getAccessTokenSilently } = useAuth0(); // user, getAccessTokenSilently
     // console.log(user, user.profile)
-  
-    postToDb(user, getAccessTokenSilently); //posts user to backend
+    if (!user) {
+        return null;
+    }
+    
+    postToDb(user, getAccessTokenSilently)
    
     // if (user.assignedRoles !== 'Admin') {
     //     console.log('not admin')
@@ -43,12 +54,12 @@ async function Root() {
        
             <div id="sidebar">
                 
-                {/* <h2 style={{color: "#fff"}}>Hola {user.email}!</h2>
-                <h4>{user.assignedRoles[0]}</h4> */}
+                <h2 style={{color: "#fff"}}>Hola {user.name}!</h2>
+                <h4>{user.assignedRoles[0]}</h4>
 
             <h1>Tesoro</h1>
-            <div>
-                <form id="search-form" role="search">
+            {/* <div> */}
+                {/* <form id="search-form" role="search">
                     <input
                         id="q"
                         aria-label="Search contacts"
@@ -66,18 +77,18 @@ async function Root() {
                 </form>
                 <form method="post">
                     <button type="submit">New</button>
-                </form>
-            </div>
+                </form> */}
+            {/* </div> */}
             <nav>
             <ul>
-                <li>
-                <Link to={`/dashboard`} element={<Dashboard/>}>Dashboard</Link>
-            </li>
+                {/* <li>
+                <Link to={`/dashboard`}>Dashboard</Link>
+            </li> */}
                 <li>
                 <Link to={`/dashboard/profile`} >Profile</Link>
             </li>
             <li>
-                <Link to={`/dashboard/goals`} element={<FinancialGoals/>}>Goals</Link>
+                <Link to={`/dashboard/goals`} >Goals</Link>
             </li>
             <li>
                 <Link to={`/dashboard/contacts/2`}>Reports</Link>
