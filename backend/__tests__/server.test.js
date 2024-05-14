@@ -4,7 +4,7 @@ jest.useFakeTimers('legacy')
 
 // Tests hangs, can't detect "OpenHandles" yet, needs debugging
 
-describe('Testing home route and authenticated route', () => {
+describe('Testing public route and route that needs authentication', () => {
     //public route, anyone can visit
     it('responds to / as public route', async () => {
         const res = await request(app).get('/');
@@ -12,8 +12,8 @@ describe('Testing home route and authenticated route', () => {
         expect(res.text).toEqual('\"hello and welcome to home for now\"');
     });
     //private route, only validated users, missing jwt Token on purpose - expected to fail
-    it('expect to fail responds to /hello, private route protected by Auth0', async () => {
-        const res = await request(app).get('/hello');
+    it('expect to fail responds to /admin, private route protected by Auth0', async () => {
+        const res = await request(app).get('/admin');
         expect(res.header['content-type']).toBe('text/html; charset=utf-8');
         expect(res.statusCode).toBe(401);
         expect(res.text).toContain('UnauthorizedError: Unauthorized');
