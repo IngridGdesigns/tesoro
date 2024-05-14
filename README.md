@@ -16,9 +16,17 @@ Features:
 - Frontend: [Vite+React](https://vitejs.dev/guide/), [React Hook Form](https://react-hook-form.com/get-started), [React Router](https://reactrouter.com/en/main/start/overview)
 - UI components: [Joy UI](https://mui.com/joy-ui/getting-started/installation/)
 
+## Getting Started
+
+Please read the whole doc before getting started, Auth0 has more info at the end of the doc, happy coding!
+
+![instructions/catCode.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/catCode.gif)
+
+
 ## Installation
 
 - Clone project
+
 ![instructions/clone.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/clone.gif)
 
 - Make sure you update your node and npm, node to version lts/iron
@@ -144,6 +152,8 @@ you will use '/api' as your url to fetch your data, example:
 - After that you will encounter the user Dashboard
 
 ## Auth0 Resources WIP
+
+Small guide, but would suggest following the [spa-starter project](https://developer.auth0.com/resources/code-samples/full-stack/hello-world/basic-role-based-access-control/spa/react-javascript/express-javascript) that includes Role based access control/React information, some things differe because I used Vite+React instead. Clone the project from github and get started from there following set up, then dive into the rest below. Otherwise it could get confusing because they have deprecated information, some is marked as deprecated, other's aren't. 
 
 1. If planning to use [class components in React visit](https://github.com/auth0/auth0-react/blob/main/EXAMPLES.md#use-with-a-class-component)
 1. To distiguish between a user and admin, use [claims check](https://github.com/auth0/auth0-react/blob/main/EXAMPLES.md#protecting-a-route-with-a-claims-check)
