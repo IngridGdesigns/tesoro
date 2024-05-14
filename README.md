@@ -18,7 +18,7 @@ Features:
 
 ## Getting Started
 
-Please read the whole doc before getting started, Auth0 has more info at the end of the doc, happy coding!
+Please read the whole doc before getting started, there is more Auth0 info at the end of the doc, happy coding!
 
 ![instructions/catCode.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/catCode.gif)
 
