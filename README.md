@@ -4,6 +4,10 @@
 
 A personal finance management that will allows users to track their income, expenses, savings, providing insights into their financial health, and helping them make informed financial decisions.
 
+Features:
+- Add goals
+
+
 ## Tools and Technologies
 
 - Database: [Postgresql (postgesql app)](https://postgresapp.com/),
@@ -18,9 +22,9 @@ A personal finance management that will allows users to track their income, expe
 ![instructions/clone.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/clone.gif)
 
 - Make sure you update your node and npm, node to version lts/iron
-- Run ```nvm use```, it will make sure you run the right version of node
+- Run ```nvm use```, to run the right version of node
 - Go to the backend folder and run ```npm install``
-- Then run ```npm start```, make sure you can access route ('/') which will display a welcome message: 'hello and welcome to home for now'
+- Then run ```npm start```, make sure you can access route ('http://localhost:3005') which will display a welcome message: 'hello and welcome to home for now'. You may change port number to whatever you like. 
 
 ### Postgres
 
@@ -112,7 +116,7 @@ you will use '/api' as your url to fetch your data, example:
  ```
 
 - After frontend setup, go to the backend folder and run ```npm start``` and then go to client folder and run ```npm run dev```, you should see the landing page and button to login, Auth0 will take you to their log-in or registration page. 
-
+- After that you will encounter the user Dashboard
 
 - https://www.kirupa.com/html5/emoji.htm
 
