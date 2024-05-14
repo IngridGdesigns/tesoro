@@ -29,16 +29,22 @@ app.set("json spaces", 2);
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
-app.use(cors()); 
-// app.use(express.static(path.join(__dirname, 'public')));
+if (process.env.NODE_ENV !== 'test') {
+  const cors = require('cors');
+  app.use(cors()); 
 
-app.use(function (req, res, next) {
+  app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.send({ "msg": "This has CORS enabled 🎈!!" });
   // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers');
   next();
 });
+}
+
+// app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 
 app.get('/', (req, res) => {
@@ -77,3 +83,5 @@ app.get('/authorized', jwtCheck, function (req, res) {
 app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`);
 });
+
+module.exports = app;
