@@ -26,8 +26,7 @@ function AddGoalForm({ user, handleCreateGoal }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
           
-      <input type="hidden" value={user.sub} {...register("user_sub")} />
-       <input type="hidden" value={135} {...register("user_id")} />
+      <input type="hidden" value={user.sub} {...register("user_sub")}/>
         <input type="text" placeholder="Add your goal" {...register("goal_name", {required: true})} />
         <input type="number" placeholder="Goal Amount" {...register("goal_amount", {required: true, maxLength: 9})} />
         <input type="datetime" placeholder="2024/5/15" {...register('target_date')} />

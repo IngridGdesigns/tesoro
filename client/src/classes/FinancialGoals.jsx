@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 import { Component } from 'react';
 import Table from '@mui/joy/Table';
-import axios from 'axios';
-
 import AddGoalForm from './forms/createGoal';
-import { withAuth0 } from '@auth0/auth0-react';
+import { withAuth0} from '@auth0/auth0-react';
+// import axios from 'axios';
 
 
 class FinancialGoals extends Component {
@@ -12,40 +11,44 @@ class FinancialGoals extends Component {
         super(props);
         this.state = {
             goals: [],
-            user: '',
+            error: null,
+
         };
+
+        this.handleGetGoals = this.handleGetGoals.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount () {
     
         this.handleGetGoals();
 
     }
 
-    handleGetGoals = async () => {
-        const { user, getAccessTokenSilently } = this.props.auth0
-         // eslint-disable-next-line react/prop-types
-        const options = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAccessTokenSilently()}`
-            }
-        }
-        
-        try {
-            const response = await axios.get(`/api/goals/${user}`, options);
-            this.setState({ goals: response.data }); 
-        }
-        catch (error) {
-        console.error('Error fetching data:', error);
-        }
+   handleGetGoals = async () => {
+    const { user, getAccessTokenSilently } = this.props.auth0;
+       const token = await getAccessTokenSilently();
+
+       if (!user) {
+           console.log('no user!');
+       }
+
+       fetch(`/api/goals/sub/${user.sub}`, {
+           method: 'GET',
+           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json; charset=UTF-8'}
+       })
+           .then(response => response.json())
+           .then(data => {
+               console.log(data);
+               this.setState({goals: data})
+           })
+        .catch(error => console.error(error))
 }
 
     handleCreateGoal = async (newGoal) => {
     const { getAccessTokenSilently } = this.props.auth0;
    
         //had to destructure, there may be a bug, need more coffee <--- 5/14/24
-    const { user_id, user_sub, goal_name, goal_amount, target_date } = newGoal;
+    const { user_sub, goal_name, goal_amount, target_date } = newGoal;
 
     try {
         const response = await fetch('/api/goals', {
@@ -54,7 +57,7 @@ class FinancialGoals extends Component {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessTokenSilently()}`
             },
-            body: JSON.stringify({ user_id, user_sub, goal_name, goal_amount, target_date })
+            body: JSON.stringify({ user_sub, goal_name, goal_amount, target_date })
         });
 
         if (!response.ok) {
@@ -72,7 +75,9 @@ class FinancialGoals extends Component {
             error: error.message
         });
     }
-}
+    }
+    
+    // handleEditGoal()
 
     render() {
         // eslint-disable-next-line react/prop-types
