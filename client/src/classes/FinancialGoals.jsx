@@ -2,6 +2,7 @@
 import { Component } from 'react';
 import Table from '@mui/joy/Table';
 import AddGoalForm from './forms/createGoal';
+import EditGoalModal from '../classes/forms/Modal';
 import { withAuth0} from '@auth0/auth0-react';
 
 
@@ -12,11 +13,14 @@ class FinancialGoals extends Component {
         this.state = {
             goals: [],
             error: null,
-            userID: ''
+            userID: '',
+            isModalOpen: false,
 
         };
 
         this.handleGetGoals = this.handleGetGoals.bind(this);
+        this.handleDeleteGoal = this.handleEditGoal.bind(this)
+        this.handleDeleteGoal = this.handleDeleteGoal.bind(this)
         // this.getUser = this.getUser.bind(this);
     }
 
@@ -50,7 +54,7 @@ getUser = async () => {
         const userData = await response.json();
         console.log(userData, 'here lies the results full of stuff, where is the id??');
 
-         this.setState({ userID: userData });
+         this.setState({ userID: userData});
     } catch (error) {
         console.error('Error fetching user data:', error);
         return null;
@@ -79,17 +83,17 @@ getUser = async () => {
    }
     
 
-handleCreateGoal = async (newGoal) => {
-    const { getAccessTokenSilently, user } = this.props.auth0;
-    const { userID } = await this.state; // Await getUser to get the user's ID
+    handleCreateGoal = async (newGoal) => {
+        const { getAccessTokenSilently, user } = this.props.auth0;
+        const { userID } = await this.state; // Await getUser to get the user's ID
 
 
-    console.log(userID.user_id, 'will i find just user id isolated te type?????')
-    const user_id = parseInt(userID.user_id);
+        console.log(userID.user_id, 'will i find just user id isolated te type?????')
+        const user_id = parseInt(userID.user_id);
 
-    // const user_id = parseInt(userID.user_id);
-    const { goal_name, goal_amount, target_date } = newGoal;
-    const user_sub = user.sub;
+        // const user_id = parseInt(userID.user_id);
+        const { goal_name, goal_amount, target_date } = newGoal;
+        const user_sub = user.sub;
     //  const amount = parseFloat(goal_amount)
     try {
         const response = await fetch(`/api/goals`, {
@@ -117,13 +121,44 @@ handleCreateGoal = async (newGoal) => {
         });
     }
 };
-
     
-    handleEditGoal(goal) {
+    handleEditGoal(updatedGoal) {
         console.log('awesome edting happening here');
-        console.log('goal id', goal.goal_id)
-        console.log('goal name', goal.goal_name)
-    }
+        console.log('goal id', updatedGoal.goal_id)
+        console.log('goal name', updatedGoal.goal_name)
+
+    const { getAccessTokenSilently } = this.props.auth0;
+
+    fetch(`/api/goals/${updatedGoal.goal_id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAccessTokenSilently()}`
+        },
+        body: JSON.stringify(updatedGoal) // Send the updated goal as JSON in the request body
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update goal');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Goal updated:', data);
+        // Find the index of the updated goal in the goals array
+        const index = this.state.goals.findIndex(g => g.goal_id === updatedGoal.goal_id);
+        if (index !== -1) {
+            // Create a copy of the goals array and replace the old goal with the updated one
+            const updatedGoals = [...this.state.goals];
+            updatedGoals[index] = updatedGoal;
+            // Update state with the new array of goals
+            this.setState({ goals: updatedGoals, isModalOpen: false });
+        }
+    })
+    .catch(error => {
+        console.error('Error updating goal:', error);
+    });
+}
 
 
     handleDeleteGoal(goal) {
@@ -147,6 +182,7 @@ handleCreateGoal = async (newGoal) => {
             // Update state with the new array of goals
             this.setState({ goals: updatedGoals });
         }
+    
     }) // Manipulate the data retrieved back, if we want to do something with it
         .catch(err => console.error(err)) 
     }
@@ -156,6 +192,7 @@ handleCreateGoal = async (newGoal) => {
     render() {
         // eslint-disable-next-line react/prop-types
         const { user, isLoading } = this.props.auth0; // Use the custom hook
+        const { isModalOpen } = this.state;
 
         if (!user) {
             return null;
@@ -200,10 +237,17 @@ handleCreateGoal = async (newGoal) => {
                                 <td>{goal.current_amount }</td>
                                 <td>{goal.remaining_amount}</td>
                                 <td>
-                                    <button onClick={() => this.handleEditGoal(goal)}>Edit</button>
                                 
-                                    <button onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
-                                </td>
+                                <button onClick={() => this.setState({ isModalOpen: true })}>Edit Goal</button>
+                                <EditGoalModal
+                                    goal={goal}
+                                    onSave={this.handleEditGoal}
+                                    isOpen={isModalOpen}
+                                    onRequestClose={() => this.setState({ isModalOpen: false })}
+                                    />
+                            
+                                <button onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
+                            </td>
                             </tr>
                         ))}
                     </tbody>

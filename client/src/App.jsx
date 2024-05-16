@@ -2,6 +2,7 @@
 import { createBrowserRouter, RouterProvider} from "react-router-dom";
 import './index.css'
 import ErrorPage from './pages/error-page';
+import Budget from './classes/Budget';
 import Contact from './routes/contact';
 // import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/goals",
         element: < AuthenticationGuard component={ FinancialGoals } />,
+      },
+       {
+        path: "/dashboard/budget",
+        element: < AuthenticationGuard component={ Budget } />,
       }
     ],
   },

@@ -76,6 +76,7 @@ app.get('/admin', validateAccessToken, (req, res) => {
 const userRoutes = require('./routes/userRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const goalRoutes = require('./routes/goalsRoutes');
+const budgetRoutes = require('./routes/budgetRoutes')
 const categoryRoutes = require('./routes/categoryRoutes');
 const transactionRoutes = require('./routes/transactionsRoutes');
 
@@ -85,6 +86,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/goals', goalRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 app.get('/authorized', jwtCheck, function (req, res) {
     res.send('Secured Resource');
