@@ -64,7 +64,7 @@ const getGoalsByUserId = async (req, res) => { // using user sub
 
   const user_sub = parseInt(req.params.user_id);
 
-  await client.query('SELECT * FROM financial_goals WHERE user_id = $1', [user_id], (err, results) => {
+  await client.query('SELECT * FROM financial_goals WHERE user_id = $1 AND goal_amount - current_amount = remaining_amount', [user_id], (err, results) => {
     if (err) {
       console.log('you got an error', err.message, err.body, 'done')
       res.status(500).send(err);
@@ -75,6 +75,11 @@ const getGoalsByUserId = async (req, res) => { // using user sub
     }
   });
 };
+
+
+
+
+
 
 const createGoal = async (req, res) => { // updated body
     const client = await pool.connect();
@@ -101,15 +106,16 @@ const createGoal = async (req, res) => { // updated body
 
 const createGoalById = async (req, res) => {
     const client = await pool.connect();
-
+    
     const goal_name = req.params.goal_name;
     const target_date = req.params.target_date;
     let user_sub = decodeURIComponent(req.params.user_sub);
     let user_id = parseInt(req.params.user_id);
-    let goal_amount = parseFloat(req.params.amount);
+  let goal_amount = parseFloat(req.params.amount);
+  // let current_amount = parseFloat(req.body.current_amount)
   
   await client.query('INSERT INTO financial_goals(user_id, user_sub, goal_name, goal_amount, target_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [user_id, user_sub, goal_name, goal_amount, target_date], (err, results) => {
+    [user_id, user_sub, goal_name, goal_amount, target_date, ], (err, results) => {
 
       if (err) {
         console.log('you got an error', err.message, err.body, err, 'done')

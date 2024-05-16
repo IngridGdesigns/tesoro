@@ -5,8 +5,8 @@ const router = express.Router();
 
 router.get('/', getAllBudgets);
 
-router.get('/:user_id', getBudgetByUserId);
+router.get('/:user_sub', getBudgetByUserId);
 
-router.get('/:user_id', calcTotalForEachCategoryInBudget);
+router.get('/calculate/:user_id', calcTotalForEachCategoryInBudget);
 
 module.exports = router;
