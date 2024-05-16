@@ -45,6 +45,31 @@ Please read the whole doc before getting started, there is more Auth0 info at th
 ```CREATE DATABASE yourDatabase;```, a database will be created.
 - Type command ```\c yourDatabase``` to head over to your new database.
 - Use the following command to import tables into your database,  
+- Also check database encoding is UTF8, this will help to fetch user.sub Auth0 id, 
+```sql
+-- If you're already logged in to the db server, just copy and paste this.
+
+SHOW SERVER_ENCODING;
+--- Result:
+
+  server_encoding 
+-----------------  
+UTF8
+
+
+--- Again if you are already logged in, use this to get the list based result
+
+\l 
+
+```
+
+When you fetch user information, make sure headers = 
+```javascript 
+'Content-Type': 'application/json; charset=UTF-8'
+```
+
+etc... MORE TO ADD - WIP
+
 
 - Next step is to head over to Auth0...but before that, quick notes on using Auth0 with classes: const { getAccessTokenSilently} = this.props.auth0;
 
@@ -151,6 +176,27 @@ you will use '/api' as your url to fetch your data, example:
 - After frontend setup, go to the backend folder and run ```npm start``` and then go to client folder and run ```npm run dev```, you should see the landing page and button to login, Auth0 will take you to their log-in or registration page. 
 - After that you will encounter the user Dashboard
 
+## Testing
+
+Using Jest and supertest, package.json files display setup. To run tests, ```npm test```, cors() is paused when tests run.
+
+```JSON
+
+ "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 3000,
+    "setupFiles": ["<rootDir>/setupTests.js"],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+
+```
+
+At the moment there are two test, one to test public route and one to test private route, where a user needs a token to access, admin. The test is expected to fail, because the token is omitted. Unfortunately the test hangs after passing, and I'm still debugging. 
+
+
+
 ## Auth0 Resources WIP
 
 Small guide, but would suggest following the [spa-starter project](https://developer.auth0.com/resources/code-samples/full-stack/hello-world/basic-role-based-access-control/spa/react-javascript/express-javascript) that includes Role based access control/React information, some things differe because I used Vite+React instead. Clone the project from github and get started from there following set up, then dive into the rest below. Otherwise it could get confusing because they have deprecated information, some is marked as deprecated, other's aren't. 
@@ -202,7 +248,7 @@ Small guide, but would suggest following the [spa-starter project](https://devel
   }
   ```
 
-# Using Claims check
+#### Using Claims check
 
 ```javascript 
 
