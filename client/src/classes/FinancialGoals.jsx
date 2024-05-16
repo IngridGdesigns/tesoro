@@ -19,7 +19,7 @@ class FinancialGoals extends Component {
         };
 
         this.handleGetGoals = this.handleGetGoals.bind(this);
-        this.handleDeleteGoal = this.handleEditGoal.bind(this)
+        this.handleEditGoal = this.handleEditGoal.bind(this)
         this.handleDeleteGoal = this.handleDeleteGoal.bind(this)
         // this.getUser = this.getUser.bind(this);
     }
@@ -88,7 +88,7 @@ getUser = async () => {
         const { userID } = await this.state; // Await getUser to get the user's ID
 
 
-        console.log(userID.user_id, 'will i find just user id isolated te type?????')
+        // console.log(userID.user_id, 'will i find just user id isolated te type?????')
         const user_id = parseInt(userID.user_id);
 
         // const user_id = parseInt(userID.user_id);
@@ -123,7 +123,7 @@ getUser = async () => {
 };
     
     handleEditGoal(updatedGoal) {
-        console.log('awesome edting happening here');
+      
         console.log('goal id', updatedGoal.goal_id)
         console.log('goal name', updatedGoal.goal_name)
 
@@ -238,15 +238,15 @@ getUser = async () => {
                                 <td>{goal.remaining_amount}</td>
                                 <td>
                                 
-                                <button onClick={() => this.setState({ isModalOpen: true })}>Edit Goal</button>
+                                <button className="edit-button" onClick={() => this.setState({ isModalOpen: true })}>Edit Goal</button>
                                 <EditGoalModal
                                     goal={goal}
                                     onSave={this.handleEditGoal}
                                     isOpen={isModalOpen}
                                     onRequestClose={() => this.setState({ isModalOpen: false })}
                                     />
-                            
-                                <button onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
+                               
+                                <button className="delete-button" onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
                             </td>
                             </tr>
                         ))}
