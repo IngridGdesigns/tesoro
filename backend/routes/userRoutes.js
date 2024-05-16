@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllUsers, getUserById, createUser, editUserById, editUserRole, deleteUser } = require('../models/users');
+const { getAllUsers, getUserById, getUserBySub, createUser, editUserById, editUserRole, deleteUser } = require('../models/users');
 
 const router = express.Router();
 
@@ -8,7 +8,9 @@ router.get('/', getAllUsers);
 
 router.get('/:user_id', getUserById);
 
-router.post('/', createUser);
+router.get('/sub/:user_sub', getUserBySub);
+
+router.post('/', createUser); /// evaluate the rest
 
 router.put('/:user_id', editUserById);
 
