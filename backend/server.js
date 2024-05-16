@@ -26,26 +26,36 @@ const PORT = process.env.PORT || 3005;
 
 app.use(express.json())
 app.set("json spaces", 2);
-app.use(bodyParser.urlencoded({ extended: true}));
+// app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
-if (process.env.NODE_ENV !== 'test') {
-  const cors = require('cors');
+app.use(express.urlencoded({ extended: true}))
+
+// enable to run tests - current bug <-- needs refactoring
+// if (process.env.NODE_ENV !== 'test') {
+//   const cors = require('cors') //cors
+//     app.use(cors()); 
+
+//     app.use(function (req, res, next) {
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+//     res.send({ "msg": "This has CORS enabled 🎈!!" });
+//     // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers');
+//     next();
+//   });
+// }
+
   app.use(cors()); 
 
   app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.send({ "msg": "This has CORS enabled 🎈!!" });
-  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers');
+  res.setHeader('Access-Control-Allow-Origin', '*'); /// 'http://localhost:5173'
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    // res.setHeader("Access-Control-Allow-Headers", "X-Token");
+  // res.send({ "msg": "This has CORS enabled 🎈!!" });
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Headers');
   next();
 });
-}
-
 // app.use(express.static(path.join(__dirname, 'public')));
-
-
-
 
 app.get('/', (req, res) => {
   console.log('welcome home');

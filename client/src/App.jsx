@@ -25,7 +25,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: < AuthenticationGuard component={ Root} />,
+    element: < AuthenticationGuard component={ Root } />,
     errorElement: <ErrorPage />,
     children: [
       {
