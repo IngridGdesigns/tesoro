@@ -10,7 +10,7 @@ function AddGoalForm({ handleCreateGoal }) {
 
   const onSubmit = data => {
     try {
-      console.log(data, 'form submitted');
+      console.log(data);
       
      handleCreateGoal(data);
     
@@ -26,11 +26,12 @@ function AddGoalForm({ handleCreateGoal }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} >
           
-      {/* <input type="hidden" value={user.sub} {...register("user_sub")}/> */}
+      {/* <input type="hidden" value={userID.user_sub} {...register("user_sub")} />
+       <input type="hidden" value={userID.user_id} {...register("user_id")}/> */}
       <input type="text" placeholder="Goal name" {...register("goal_name", {required: true})} />
       <input type="number" placeholder="Goal Target Amount" {...register("goal_amount", { required: true, maxLength: 1000 })} />
-      {/* <input type="number" placeholder="5.00" {...register("current_amount", {required: true})}/> */}
-       <input type="datetime" placeholder="start_date" {...register("target_date", {required: true})} />
+      <input type="number" placeholder="5.00" {...register("current_amount", {required: true})}/>
+       <input type="datetime" placeholder="date" {...register("target_date", {required: true})} />
 
         <input type="submit" />
     </form>

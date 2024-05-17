@@ -44,14 +44,14 @@ const getUserById = async (req, res) => {
 const getUserBySub = async (req, res) => {
   const client = await pool.connect();
 
-   let user_sub = decodeURIComponent(req.params.user_sub);
+   let user_sub = req.params.user_sub; // not a number
 
   await client.query('SELECT * FROM users WHERE user_sub = $1', [user_sub], (err, results) => {
     if (err) {
       res.status(500).send(err);
       client.release();
     } else { // res.json(dbitems.rows[0] )
-      console.log(results.rows[0])
+      // console.log(results.rows[0])
       res.status(200).json(results.rows[0]);
       client.release();
     }

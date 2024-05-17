@@ -26,23 +26,23 @@ class FinancialGoals extends Component {
 
     async componentDidMount () {
         await this.getUser();
-        this.handleGetGoals();
+        await this.handleGetGoals(); // needs to await 
 
     }
 
 
 getUser = async () => {
     const { user, getAccessTokenSilently } = this.props.auth0;
-    const usersub = user.sub;
-
+    
     try {
-        const token = await getAccessTokenSilently();
+        const user_sub = user.sub;
+
         const headers = {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${getAccessTokenSilently()}`,
             'Content-Type': 'application/json; charset=UTF-8'
         };
 
-        const response = await fetch(`/api/users/sub/${usersub}`, {
+        const response = await fetch(`/api/users/sub/${user_sub}`, {
             method: 'GET',
             headers
         });
@@ -51,13 +51,14 @@ getUser = async () => {
             throw new Error('Failed to fetch user data');
         }
 
-        const userData = await response.json();
-        console.log(userData, 'here lies the results full of stuff, where is the id??');
+        const userID = await response.json(); // Parse response body as JSON
+        console.log(userID, 'getting user information?');
 
-         this.setState({ userID: userData});
+        this.setState({ userID });
+        console.log(userID)
     } catch (error) {
         console.error('Error fetching user data:', error);
-        return null;
+        
     }
 };
     
@@ -70,7 +71,9 @@ getUser = async () => {
            console.log('no user!');
        }
 
-       fetch(`/api/goals/sub/${user.sub}`, {
+       const user_sub = user.sub;
+
+       fetch(`/api/goals/sub/${user_sub}`, {
            method: 'GET',
            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json; charset=UTF-8'}
        })
@@ -84,25 +87,23 @@ getUser = async () => {
     
 
     handleCreateGoal = async (newGoal) => {
-        const { getAccessTokenSilently, user } = this.props.auth0;
-        const { userID } = await this.state; // Await getUser to get the user's ID
+        const { getAccessTokenSilently, user } = await this.props.auth0;
+        const { userID } = this.state; // Await getUser to get the user's ID
 
-
-        // console.log(userID.user_id, 'will i find just user id isolated te type?????')
-        const user_id = parseInt(userID.user_id);
-
-        // const user_id = parseInt(userID.user_id);
-        const { goal_name, goal_amount, target_date } = newGoal;
         const user_sub = user.sub;
+        const user_id = userID.user_id;
+     
+        const { goal_name, goal_amount, target_date, current_amount } = newGoal;
+        
     //  const amount = parseFloat(goal_amount)
     try {
-        const response = await fetch(`/api/goals`, {
+        const response = await fetch(`/api/goals/create`, { // check change may 17 12pm
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessTokenSilently()}`
             },
-            body: JSON.stringify({ goal_name, target_date, goal_amount: parseInt(goal_amount), user_id, user_sub}) 
+            body: JSON.stringify({ current_amount, goal_name, target_date, goal_amount: parseInt(goal_amount), user_id, user_sub}) 
         });
 
         if (!response.ok) {
@@ -123,13 +124,13 @@ getUser = async () => {
 };
     
     handleEditGoal(updatedGoal) {
-      
+        console.log('awesome edting happening here');
         console.log('goal id', updatedGoal.goal_id)
         console.log('goal name', updatedGoal.goal_name)
 
     const { getAccessTokenSilently } = this.props.auth0;
 
-    fetch(`/api/goals/${updatedGoal.goal_id}`, {
+    fetch(`/api/edit/goals/${updatedGoal.goal_id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -165,7 +166,7 @@ getUser = async () => {
         const { getAccessTokenSilently } = this.props.auth0;
         // console.log('deleting goal', goal.goal_id);
 
-        fetch(`/api/goals/${goal.goal_id}`, {
+        fetch(`/api/goals/delete/${goal.goal_id}`, {
             method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
@@ -193,6 +194,14 @@ getUser = async () => {
         // eslint-disable-next-line react/prop-types
         const { user, isLoading } = this.props.auth0; // Use the custom hook
         const { isModalOpen } = this.state;
+
+        // let userId = 0;
+        // let userSub = '';
+        
+        // goals.forEach((item, i) => {
+        //     console.log(item, `at ${i}, where are we`)
+        //     userId = item.user_id
+        // })
 
         if (!user) {
             return null;
@@ -238,15 +247,15 @@ getUser = async () => {
                                 <td>{goal.remaining_amount}</td>
                                 <td>
                                 
-                                <button className="edit-button" onClick={() => this.setState({ isModalOpen: true })}>Edit Goal</button>
+                                <button onClick={() => this.setState({ isModalOpen: true })}>Edit Goal</button>
                                 <EditGoalModal
                                     goal={goal}
                                     onSave={this.handleEditGoal}
                                     isOpen={isModalOpen}
                                     onRequestClose={() => this.setState({ isModalOpen: false })}
                                     />
-                               
-                                <button className="delete-button" onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
+                            
+                                <button onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
                             </td>
                             </tr>
                         ))}

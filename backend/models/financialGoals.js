@@ -62,7 +62,7 @@ const getGoalsByUserSub = async (req, res) => { // using user sub
 const getGoalsByUserId = async (req, res) => { // using user sub
   const client = await pool.connect();
 
-  const user_sub = parseInt(req.params.user_id);
+  const user_id = parseInt(req.params.user_id);
 
   await client.query('SELECT * FROM financial_goals WHERE user_id = $1 AND goal_amount - current_amount = remaining_amount', [user_id], (err, results) => {
     if (err) {
@@ -84,14 +84,15 @@ const getGoalsByUserId = async (req, res) => { // using user sub
 const createGoal = async (req, res) => { // updated body
     const client = await pool.connect();
 
-    const goal_name = req.body.goal_name;
-    const target_date = req.body.target_date;
-    let user_sub = decodeURIComponent(req.body.user_sub);
-    let user_id = parseInt(req.body.user_id);
-    let goal_amount = parseFloat(req.body.goal_amount);
+    // const goal_name = req.body.goal_name;
+    // const target_date = req.body.target_date;
+    // let user_sub = decodeURIComponent(req.body.user_sub);
+    // let user_id = parseInt(req.body.user_id);
+  // let goal_amount = parseFloat(req.body.goal_amount);
+  const { user_id, user_sub, goal_name, goal_amount, target_date, current_amount } = req.body;
   
-  await client.query('INSERT INTO financial_goals(user_id, user_sub, goal_name, goal_amount, target_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [user_id, user_sub, goal_name, goal_amount, target_date], (err, results) => {
+  await client.query('INSERT INTO financial_goals(user_id, user_sub, goal_name, goal_amount, target_date, current_amount) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+    [user_id, user_sub, goal_name, goal_amount, target_date, current_amount], (err, results) => {
 
       if (err) {
         console.log('you got an error', err.message, err.body, err, 'done')
@@ -103,15 +104,15 @@ const createGoal = async (req, res) => { // updated body
       }
   });
 };
-
+// not active right now
 const createGoalById = async (req, res) => {
     const client = await pool.connect();
     
-    const goal_name = req.params.goal_name;
-    const target_date = req.params.target_date;
-    let user_sub = decodeURIComponent(req.params.user_sub);
-    let user_id = parseInt(req.params.user_id);
-  let goal_amount = parseFloat(req.params.amount);
+    const goal_name = req.body.goal_name;
+    const target_date = req.body.target_date;
+    let user_sub = decodeURIComponent(req.body.user_sub);
+    let user_id = Number(req.params.user_id);
+  let goal_amount = parseFloat(req.body.amount);
   // let current_amount = parseFloat(req.body.current_amount)
   
   await client.query('INSERT INTO financial_goals(user_id, user_sub, goal_name, goal_amount, target_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
@@ -190,13 +191,11 @@ const editGoal = async (req, res) => { //and update transaction by goal_id
 const deleteGoal = async (req, res) => {
     const client = await pool.connect();
 
-    const goal_id = req.params.goal_id;
-   
+    const goal_id = Number(req.params.goal_id);
 
-    await client.query('DELETE FROM financial_goals WHERE goal_id = $1',
-        [goal_id], (err, results) => {
+    await client.query('DELETE FROM financial_goals WHERE goal_id = $1', [goal_id], (err, results) => {
              if (err) {
-                res.status(500).send(err);
+                res.status(500).send(err.message, err.body, err,);
                 client.release();
              } else {
                 console.log('tchau, it was deleted')

@@ -8,7 +8,7 @@ router.get('/', getAllUsers);
 
 router.get('/:user_id', getUserById);
 
-router.get('/sub/:user_sub', getUserBySub);
+router.get('/sub/:user_sub', getUserBySub); // `/api/users/${usersub}`,
 
 router.post('/', createUser); /// evaluate the rest
 
