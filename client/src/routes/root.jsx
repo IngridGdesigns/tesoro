@@ -74,9 +74,6 @@ function Root() {
                 <Link to={`/dashboard/profile`} >Profile</Link>
             </li>
             <li>
-                <Link to={`/dashboard/transactions`}>Transactions</Link>
-            </li>
-            <li>
                 <Link to={`/dashboard/reports`}>Reports</Link>
             </li>
         </ul>

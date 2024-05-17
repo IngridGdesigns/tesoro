@@ -39,6 +39,22 @@ const getTransactionsById = async (req, res) => {
   });
 };
 
+const getTransactionsByUserSub = async (req, res) => {
+  const client = await pool.connect();
+
+  const user_sub = req.params.user_sub;
+
+  await client.query('SELECT * FROM transactions WHERE user_sub = $1', [user_sub], (err, results) => {
+    if (err) {
+      res.status(500).send(err);
+      client.release();
+    } else { 
+      res.status(200).json(results.rows);
+      client.release();
+    }
+  });
+};
+
 // const createTransaction = async (req, res) => { // without budget
 //     const client = await pool.connect();
 
@@ -140,7 +156,8 @@ const deleteTransaction = async (req, res) => {
 
 module.exports = {
     getAllTransactions, 
-    getTransactionsById, 
+  getTransactionsById,
+    getTransactionsByUserSub,
     createTransaction,
     editTransaction,
     deleteTransaction

@@ -161,25 +161,6 @@ const createBudgetByCategory = async (req, res) => {
 }
 
 
-// const editAccountById = async (req, res) => {
-//   const client = await pool.connect();
-
-//   const { user_id, account_id, account_name, balance } = req.body;
-
-//     await client.query(`UPDATE accounts SET account_id = $1, account_name = $2, balance = $3 WHERE user_id = $5 RETURNING *`,
-//         [account_id, account_name, balance, user_id], (err, results) => {
-//     if (err) {
-//       console.log('Oh noes you have an error!!')
-//       res.status(500).send('There is a server error')
-//       client.release()
-//     }
-//     else {
-//       res.status(200).json(results.rows, 'User updated!')
-//       client.release()
-//     }
-//   });
-// }
-
 const deleteBudget = async (req, res) => {
   const client = await pool.connect();
   const budget_id = Number(req.params.budget_id);

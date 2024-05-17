@@ -6,7 +6,7 @@ import Budget from './classes/Budget';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import FinancialGoals from './classes/FinancialGoals';
-import Transactions from "./classes/Transactions";
+// import Transactions from "./classes/Transactions";
 import Home from './pages/Home';
 import './index.css'
 // import { useAuth0 } from "@auth0/auth0-react";
@@ -46,10 +46,7 @@ const router = createBrowserRouter([
         path: "/dashboard/reports",
         element: < AuthenticationGuard component={ Reports} />,
       },
-         {
-        path: "/dashboard/transactions",
-        element: < AuthenticationGuard component={ Transactions } />,
-      },
+         
     ],
   },
   {/* Using path="*"" means "match anything", so this route
