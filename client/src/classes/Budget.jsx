@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Component } from 'react';
-// import Table from '@mui/joy/Table';
-// import CreatebudgetForm from './forms/createbudgetForm';
+import Table from '@mui/joy/Table';
+import CreatebudgetForm from './forms/createbudgetForm';
 import { withAuth0} from '@auth0/auth0-react';
 
 
@@ -17,8 +17,8 @@ class Budget extends Component {
         };
 
         this.handleGetBudget = this.handleGetBudget.bind(this);
-        // this.handleEditBudget = this.handleEditBudget.bind(this)
-        // this.handleDeleteBudget = this.handleDeleteBudget.bind(this)
+        this.handleCreateBudget = this.handleCreateBudget.bind(this)
+        this.handleDeleteBudget = this.handleDeleteBudget.bind(this)
         // this.getUser = this.getUser.bind(this);
     }
 
@@ -78,7 +78,7 @@ getUser = async () => {
            .then(data => {
             //    console.log(data);
                console.log(data)
-               
+
            
                this.setState({ budgets: data})
            })
@@ -86,107 +86,104 @@ getUser = async () => {
    }
     
 
-//     handleCreateBudget= async (newBudget) => {
-//         const { getAccessTokenSilently, user } = await this.props.auth0;
-//         const { userID } = this.state; // getUser to get the user's ID
+    handleCreateBudget= async (newBudget) => {
+        const { getAccessTokenSilently, user } = await this.props.auth0;
+        const { userID } = this.state; // getUser to get the user's ID
 
-//         const user_sub = user.sub;
-//         const user_id = userID.user_id;
+        const user_sub = user.sub;
+        const user_id = Number(userID.user_id);
      
-//         const { goal_name, goal_amount, target_date, current_amount } = newGoal;
+        const { category_id, description, start_date, amount } = newBudget;
         
-//     //  const amount = parseFloat(goal_amount)
-//     try {
-//         const response = await fetch(`/api/goals/create`, { // check change may 17 12pm
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${getAccessTokenSilently()}`
-//             },
-//             body: JSON.stringify({ current_amount, goal_name, target_date, goal_amount: parseInt(goal_amount), user_id, user_sub}) 
-//         });
+    //  const amount = parseFloat(goal_amount)
+    try {
+        const response = await fetch(`/api/budgets`, { // check change may 17 12pm
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessTokenSilently()}`
+            },
+            body: JSON.stringify({ amount: parseFloat(amount), user_id, user_sub, category_id: Number(category_id), description, start_date}) 
+        });
 
-//         if (!response.ok) {
-//             throw new Error('Failed to create goal');
-//         }
+        if (!response.ok) {
+            throw new Error('Failed to create goal');
+        }
 
-//         const data = await response.json();
+        const data = await response.json();
 
-//         this.setState((prevState) => ({
-//             goals: [...prevState.goals, data],
-//         }));
-//     } catch (error) {
-//         console.error('Error creating goal', error);
-//         this.setState({
-//             error: error.message
-//         });
-//     }
-// };
+        this.setState((prevState) => ({
+            budgets: [...prevState.budgets, data],
+        }));
+    } catch (error) {
+        console.error('Error creating budget', error);
+        this.setState({
+            error: error.message
+        });
+    }
+};
     
-//     handleEditGoal(updatedGoal) {
-//         console.log('awesome edting happening here');
-//         console.log('goal id', updatedGoal.goal_id)
-//         console.log('goal name', updatedGoal.goal_name)
+    handleDeleteBudget = async (budget) => {
+    const { getAccessTokenSilently } = this.props.auth0;
+    console.log(budget.budget_id, 'is this being deleted???')
 
-//     const { getAccessTokenSilently } = this.props.auth0;
-
-//     fetch(`/api/edit/goals/${updatedGoal.goal_id}`, {
-//         method: 'PUT',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': `Bearer ${getAccessTokenSilently()}`
-//         },
-//         body: JSON.stringify(updatedGoal) // Send the updated goal as JSON in the request body
-//     })
-//     .then(response => {
-//         if (!response.ok) {
-//             throw new Error('Failed to update goal');
-//         }
-//         return response.json();
-//     })
-//     .then(data => {
-//         console.log('Goal updated:', data);
-//         // Find the index of the updated goal in the goals array
-//         const index = this.state.goals.findIndex(g => g.goal_id === updatedGoal.goal_id);
-//         if (index !== -1) {
-//             // Create a copy of the goals array and replace the old goal with the updated one
-//             const updatedGoals = [...this.state.goals];
-//             updatedGoals[index] = updatedGoal;
-//             // Update state with the new array of goals
-//             this.setState({ goals: updatedGoals, isModalOpen: false });
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error updating goal:', error);
-//     });
-// }
-
-
-//     handleDeleteGoal(goal) {
-//         const { getAccessTokenSilently } = this.props.auth0;
-//         // console.log('deleting goal', goal.goal_id);
-
-//         fetch(`/api/goals/delete/${goal.goal_id}`, {
-//             method: 'DELETE',
-//               headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${getAccessTokenSilently()}`
-//             },
-//         }).then(data => {
-//             console.log('Goal deleted:', data);
-//         // Find the index of the goal to be deleted
-//         const index = this.state.goals.findIndex(g => g.goal_id === goal.goal_id);
-//         if (index !== -1) {
-//             // Create a copy of the goals array and remove the goal at the found index
-//             const updatedGoals = [...this.state.goals];
-//             updatedGoals.splice(index, 1);
-//             // Update state with the new array of goals
-//             this.setState({ goals: updatedGoals });
-//         }
+        const budget_id = Number(budget.budget_id);
     
-//     }) // Manipulate the data retrieved back, if we want to do something with it
-//         .catch(err => console.error(err)) 
-//     }
+    try {
+        const response = await fetch(`/api/budgets/delete/${budget_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessTokenSilently()}`
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete budget');
+        }
+
+        // Find the index to be deleted
+        const index = this.state.budgets.findIndex(b => b.budget_id === budget.budget_id);
+        if (index !== -1) {
+            // Create a copy of the budgets array and remove at the found index
+            const updatedBudgets = [...this.state.budgets];
+            updatedBudgets.splice(index, 1);
+            // Update state with the new array 
+            this.setState({ budgets: updatedBudgets });
+        }
+    } catch (error) {
+        console.error('Error deleting budget:', error);
+    }
+}
+
+
+    // handleDeleteBudget(budget) { /// from financial goals
+    //     const { getAccessTokenSilently } = this.props.auth0;
+    //     console.log(budget.budget_id, 'is this being deleted???')
+        
+    //     const budget_id = Number(budget.budget_id);
+
+    //     fetch(`/api/budgets/delete/${budget_id}`, {
+    //         method: 'DELETE',
+    //         headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': `Bearer ${getAccessTokenSilently()}`
+    //         },
+    //     }).then(data => {
+    //         console.log('Budget deleted:', data);
+    //     // Find the index to be deleted
+    //     const index = this.state.budgets.findIndex(b => b.budget_id === budget.budget_id);
+    //     if (index !== -1) {
+    //         // Create a copy of the goals array and remove at the found index
+    //         const updatedBudgets = [...this.state.budgets];
+    //         updatedBudgets.splice(index, 1);
+    //         // Update state with the new array 
+    //         this.setState({ budgets: updatedBudgets });
+    //     }
+    
+    // }) // Manipulate the data retrieved back, if we want to do something with it
+    //     .catch(err => console.error(err)) 
+    // }
 
 //     // end of crud
 
@@ -215,10 +212,48 @@ getUser = async () => {
 
         return (
 
-            <div>
-                <h1>budget stuff</h1>
-           </div>
-        
+          
+             <div>
+                {/* <img src={user.picture} alt={user.name} /> */}
+                <h1>{user.name} Budgets</h1>
+                
+                <div>
+                    <h4>Create a budget</h4>
+                    <CreatebudgetForm handleCreateBudget={this.handleCreateBudget}/>
+                </div>
+               
+                <hr/>
+                <h2>Budget</h2>
+                <Table aria-label="basic table">
+                    <thead>
+                        <tr>
+                            {/* <th style={{ width: '10%' }}>goalid</th> */}
+                            <th style={{width: '15%'}}>name</th>
+                            <th style={{width: '15%'}}>amount</th>
+                            <th>description</th>
+                            <th>start_date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.budgets.map((budget, key) => (
+                            <tr key={key}>
+                                {/* <td>id is: {budget.budget_id}</td> */}
+                                <td>{budget.category_name}</td>
+                                <td>{budget.amount}</td>
+                                 <td>{budget.budget_description}</td>
+                                <td>{budget.start_date}</td>
+                                <td>
+                                
+                               
+                             
+                            
+                                <button className="delete-button" onClick={() => this.handleDeleteBudget(budget)}>Delete</button>
+                            </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
         );
     }
 }

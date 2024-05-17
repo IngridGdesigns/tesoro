@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
-const EditGoalForm = ({ goal, onSave }) => {
+// eslint-disable-next-line react/prop-types
+const EditGoalForm = ({ goal,handleEditGoal }) => {
   const [updatedGoal, setUpdatedGoal] = useState(goal);
 
 
@@ -13,7 +14,7 @@ const EditGoalForm = ({ goal, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-      onSave(updatedGoal);
+      handleEditGoal(updatedGoal);
        console.log('Submitted Goal:', updatedGoal);
   };
 
@@ -37,9 +38,9 @@ const EditGoalForm = ({ goal, onSave }) => {
   );
 };
 
-EditGoalForm.propTypes = {
-  goal: PropTypes.object.isRequired, // Assuming goal is an object
-  onSave: PropTypes.func.isRequired,
-};
+// EditGoalForm.propTypes = {
+//   goal: PropTypes.object.isRequired, // Assuming goal is an object
+//   onSave: PropTypes.func.isRequired,
+// };
 
 export default EditGoalForm;

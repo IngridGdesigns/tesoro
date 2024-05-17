@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import Modal from 'react-modal';
 import EditGoalForm from './editGoalForm'
 import PropTypes from 'prop-types';
 
-const EditGoalModal = ({ goal, onSave, isOpen, onRequestClose }) => {
+const EditGoalModal = ({ goal, isOpen, handleEditGoal, onRequestClose }) => {
   const [updatedGoal, setUpdatedGoal] = useState({});
 
   const handleChange = (e) => {
@@ -13,7 +14,7 @@ const EditGoalModal = ({ goal, onSave, isOpen, onRequestClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(updatedGoal);
+    handleEditGoal(updatedGoal);
     onRequestClose(); // Close the modal after submitting
   };
 
@@ -40,9 +41,9 @@ const EditGoalModal = ({ goal, onSave, isOpen, onRequestClose }) => {
 
 EditGoalModal.propTypes = {
   goal: PropTypes.object.isRequired,
-  onSave: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  onRequestClose: PropTypes.func.isRequired
+  onRequestClose: PropTypes.func.isRequired,
+  handleEditGoal: PropTypes.func.isRequired
 };
 
 export default EditGoalModal;

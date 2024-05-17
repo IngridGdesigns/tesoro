@@ -3,16 +3,17 @@ import { createBrowserRouter, RouterProvider} from "react-router-dom";
 import './index.css'
 import ErrorPage from './pages/error-page';
 import Budget from './classes/Budget';
-import Contact from './routes/contact';
-// import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import FinancialGoals from './classes/FinancialGoals';
+import Transactions from "./classes/Transactions";
 import Home from './pages/Home';
 import './index.css'
 // import { useAuth0 } from "@auth0/auth0-react";
+// import Landing from './pages/Landing';
 import { AuthenticationGuard } from "./authentication-guard"
 import Root from "./routes/root";
+import Reports from "./pages/Reports";
 
  
 const router = createBrowserRouter([
@@ -28,11 +29,7 @@ const router = createBrowserRouter([
     path: "/dashboard",
     element: < AuthenticationGuard component={ Root } />,
     errorElement: <ErrorPage />,
-    children: [
-      {
-        path: "contacts/:contactId",
-        element: <Contact />,
-      },
+    children: [    
       {
         path: "/dashboard/profile",
         element: < AuthenticationGuard component={ Profile } />,
@@ -44,7 +41,15 @@ const router = createBrowserRouter([
        {
         path: "/dashboard/budget",
         element: < AuthenticationGuard component={ Budget } />,
-      }
+      },
+       {
+        path: "/dashboard/reports",
+        element: < AuthenticationGuard component={ Reports} />,
+      },
+         {
+        path: "/dashboard/transactions",
+        element: < AuthenticationGuard component={ Transactions } />,
+      },
     ],
   },
   {/* Using path="*"" means "match anything", so this route

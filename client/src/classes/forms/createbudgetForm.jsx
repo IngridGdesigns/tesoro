@@ -10,7 +10,7 @@ function CreatebudgetForm({ handleCreateBudget }) {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const onSubmit = data => {
         try {
-             console.log(data, 'hre is th data')
+             console.log(data, 'here is th data')
          handleCreateBudget(data)
         }
         catch (error) {

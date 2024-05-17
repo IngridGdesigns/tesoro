@@ -62,9 +62,7 @@ function Root() {
           
             <nav>
             <ul>
-                <li>
-                <Link to={`/dashboard`}>Dashboard</Link>
-            </li>
+             
              <li>
                 <Link to={`/dashboard/budget`}>Budget</Link>
             </li>
@@ -76,7 +74,10 @@ function Root() {
                 <Link to={`/dashboard/profile`} >Profile</Link>
             </li>
             <li>
-                <Link to={`/dashboard/contacts/2`}>Reports</Link>
+                <Link to={`/dashboard/transactions`}>Transactions</Link>
+            </li>
+            <li>
+                <Link to={`/dashboard/reports`}>Reports</Link>
             </li>
         </ul>
             </nav>
