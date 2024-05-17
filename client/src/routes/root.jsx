@@ -3,6 +3,7 @@ import { Outlet, Link} from "react-router-dom";
 // import Dashboard from "../pages/Dashboard";
 import { useAuth0 } from '@auth0/auth0-react'
 
+
 // function postToDb(user, getAccessTokenSilently) {
 //     let name = user.name;
 //     let email = user.email;
@@ -58,27 +59,7 @@ function Root() {
                 <h4>{user.assignedRoles[0]}</h4>
 
             <h1>Tesoro</h1>
-            {/* <div> */}
-                {/* <form id="search-form" role="search">
-                    <input
-                        id="q"
-                        aria-label="Search contacts"
-                        placeholder="Search"
-                        type="search"
-                        name="q" />
-                    <div
-                        id="search-spinner"
-                        aria-hidden
-                        hidden={true} />
-                    <div
-                        className="sr-only"
-                        aria-live="polite"
-                    ></div>
-                </form>
-                <form method="post">
-                    <button type="submit">New</button>
-                </form> */}
-            {/* </div> */}
+          
             <nav>
             <ul>
                 <li>
