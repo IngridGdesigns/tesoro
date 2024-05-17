@@ -78,6 +78,7 @@ getUser = async () => {
            .then(response => response.json())
            .then(data => {
                console.log(data);
+               
                this.setState({transactions: data})
            })
         .catch(error => console.error(error))
