@@ -15,6 +15,6 @@ router.get('/total-budget', getTotalSpentByBudget)
 
 router.post('/', createBudgetByCategory);
 
-router.delete('/:budget_id', deleteBudget);
+router.delete('/delete/:budget_id', deleteBudget);
 
 module.exports = router;
