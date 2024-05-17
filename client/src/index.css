@@ -418,3 +418,31 @@ span.emoji {
   list-style: none;
 }
 
+
+.delete-button {
+  color: white;
+  background-color: red;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+  font: bold;
+}
+
+.edit-button {
+  color: white;
+  background-color: rgb(76, 165, 224);
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.edit-button:hover {
+  background-color: blu;
+  font: bold;
+}
