@@ -247,7 +247,7 @@ getUser = async () => {
                                 <td>{goal.remaining_amount}</td>
                                 <td>
                                 
-                                <button onClick={() => this.setState({ isModalOpen: true })}>Edit Goal</button>
+                                <button className="edit-button" onClick={() => this.setState({ isModalOpen: true })}>Edit</button>
                                 <EditGoalModal
                                     goal={goal}
                                     onSave={this.handleEditGoal}
@@ -255,7 +255,7 @@ getUser = async () => {
                                     onRequestClose={() => this.setState({ isModalOpen: false })}
                                     />
                             
-                                <button onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
+                                <button className="delete-button" onClick={() => this.handleDeleteGoal(goal)}>Delete</button>
                             </td>
                             </tr>
                         ))}
