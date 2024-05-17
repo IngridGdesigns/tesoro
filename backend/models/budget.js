@@ -27,14 +27,36 @@ const getAllBudgets = async (req, res) => {
 const getBudgetByUserSub = async (req, res) => {
   const client = await pool.connect();
 
-  const user_sub = req.params.user_sub;
+  const user_sub = req.params.user_sub; // not an umber
 
-  await client.query(
-  `SELECT b.budget_id, b.user_id, b.amount, b.description AS budget_description,
+  
+  await client.query(`SELECT b.budget_id, b.user_id, b.amount, b.description AS budget_description,
+                          b.start_date, b.updated_at, c.category_id, c.category_name, c.description AS category_description
+                      FROM budget b
+                      LEFT JOIN categories c ON b.category_id = c.category_id
+                      WHERE user_sub = $1`, [user_sub], (err, result) => {
+        if (err) {
+          console.log(err)
+          res.status(500).json({ err: 'internal error done'});
+          client.release();
+        } else { 
+          res.status(200).json(result.rows);
+          client.release();
+        }
+  });
+};
+
+const getBudgetByUserId = async (req, res) => {
+  const client = await pool.connect();
+
+  const user_id = Number(req.params.user_id);
+  
+
+  await client.query(`SELECT b.budget_id, b.user_id, b.amount, b.description AS budget_description,
        b.start_date, b.updated_at, c.category_id, c.category_name, c.description AS category_description
   FROM budget b
   LEFT JOIN categories c ON b.category_id = c.category_id
-  WHERE user_sub = $1`, [user_sub], (err, result) => {
+  WHERE user_id = $1`, [user_id], (err, result) => {
     if (err) {
       res.status(500).send(err.message, err.body, err, 'done');
       client.release();
@@ -42,8 +64,8 @@ const getBudgetByUserSub = async (req, res) => {
       res.status(200).json(result.rows);
       client.release();
     }
-  });
-};
+  })
+}
 
 // seperate categories to see total amount spent on such category...
 const calcTotalForEachCategoryInBudget = async (req, res) => {
@@ -178,7 +200,8 @@ const deleteBudget = async (req, res) => {
 }
 
 module.exports = {
-    getAllBudgets,
+  getAllBudgets,
+  getBudgetByUserId,
     getBudgetByUserSub,
     calcTotalForEachCategoryInBudget,
     getTotalSpentByBudget, 
