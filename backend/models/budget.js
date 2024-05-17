@@ -182,12 +182,11 @@ const createBudgetByCategory = async (req, res) => {
 
 const deleteBudget = async (req, res) => {
   const client = await pool.connect();
-  const budget_id = parseInt(req.params.body);
+  const budget_id = Number(req.params.budget_id);
 
-  await client.query('DELETE FROM budget WHERE budget_id = $1',
-    [budget_id], (err, results) => {
+  await client.query('DELETE FROM budget WHERE budget_id = $1',[budget_id], (err, results) => {
     if (err) {
-      res.status(500).send(`Oh noes a Servor error: ${err}!`)
+      res.status(500).send('Server error', err.message, err.body, err, 'done')
       client.release()
     }
     else {
