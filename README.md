@@ -266,14 +266,3 @@ Small guide, but would suggest following the [spa-starter project](https://devel
  - You can curl to see your user or console.log user in Profile page to see information
 
 
-
-
-
-
-- https://www.kirupa.com/html5/emoji.htm
-
-
-UPDATE accounts
-SET balance = balance - (SELECT amount FROM transactions WHERE transaction_id = $1)
-WHERE account_id = (SELECT account_id FROM transactions WHERE transaction_id = $1)
-  AND user_id = (SELECT user_id FROM transactions WHERE transaction_id = $1);
