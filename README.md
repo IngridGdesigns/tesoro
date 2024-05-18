@@ -4,8 +4,19 @@
 
 A personal finance management that will allows users to track their income, expenses, savings, providing insights into their financial health, and helping them make informed financial decisions.
 
-Features:
-- Add goals
+Current State of App - May 18, 2024 -- notes I forgot to add on May 17th,
+
+Unfortunately I did not finish as intended in the time frame stipulated in the project assignment. So far I have the following features:
+
+- Authentication and Authorization,
+- Ability to push user's Auth0 user id (user_sub) to users table <-- there is a function in Root that does that, which isn't ideal, it should happen directly in the backend upon login or using auth0 Management API - added useEffect so code runs smoothly, (due to the async nature sometimes the user.sub wasn't being read)
+- Add goals, delete goals, view goals,
+- Create budget by category, delete budget, view budget
+- SQl schema, quick note - I added the correct file (yesterday I added an old schema that I initially started) ```db.sql```, postgresql has a trigger function when adding a transaction related to a goal, it updates financial_goals table whenever a goal id is added. In goals table you get information on how much the user needs to reach your goal, and how much the user has contributed to the goal. I included categories in the file
+- Thanks for reading and hope it's helpful. 
+- I'm adding gif that I already sent out. 
+
+![instructions/TesoroApp.gif](https://github.com/IngridGdesigns/tesoro/blob/main/instructions/TesoroApp.gif)
 
 
 ## Tools and Technologies

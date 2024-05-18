@@ -1,54 +1,59 @@
-import { Outlet, Link} from "react-router-dom";
-// import FinancialGoals from "../classes/FinancialGoals";
-// import Dashboard from "../pages/Dashboard";
+import { Outlet, Link } from "react-router-dom";
+import { useEffect } from "react";
+
 import { useAuth0 } from '@auth0/auth0-react'
 
 
-// function postToDb(user, getAccessTokenSilently) {
-//     let name = user.name;
-//     let email = user.email;
-//     let username = user.nickname;
-//     let user_sub = user.sub;
-//     let password = '123456' // should use brcypt, placeholder (wont store secrets here)
+async function postToDb(user, getAccessTokenSilently) {
+    let name = user.name;
+    let email = user.email;
+    let username = user.nickname;
+    let user_sub = user.sub;
+    let password = '123456' // should use brcypt, placeholder (wont store secrets here)
 
-//     var options = {
-//         method: 'POST',
-//         headers: { 'content-type': 'application/json', 'Authorization': `Bearer ${getAccessTokenSilently()}`},
-//         body: JSON.stringify({name, email, username, password, user_sub})
-//     };
+    var options = {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'Authorization': `Bearer ${getAccessTokenSilently()}`},
+        body: JSON.stringify({name, email, username, password, user_sub})
+    };
 
-//     fetch(`/api/users`, options) // kept getting errors with axios  -- refactor later --
-//         .then(response => response.json())
-//         .then(data => console.log(data))
-//         .catch((error) => console.error('Logging Error', error))
-//     try {
-//         const response = await fetch(`/api/users`, options); // kept getting errors with axios  -- refactor later --
-//         const data = await response.json();
-//         console.log(data);
-//     } catch (error) {
-//         console.error('Logging Error', error);
-//         return;
-//     }
-// }
-
-
-function Root() {
-    const { isLoading, user } = useAuth0(); // user, getAccessTokenSilently
-    // console.log(user, user.profile)
-    if (!user) {
-        return null;
+    /*// fetch(`/api/users`, options) // kept getting errors with axios  -- refactor later --
+    //     .then(response => response.json())
+    //     .then(data => console.log(data))
+    //     .catch((error) => console.error('Logging Error', error))*/
+    try {
+        const response = await fetch(`/api/users`, options); // kept getting errors with axios  -- refactor later --
+        const data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error('Logging Error', error);
+        return;
     }
-    
-    // postToDb(user, getAccessTokenSilently)
-   
-    // if (user.assignedRoles !== 'Admin') {
-    //     console.log('not admin')
-    // }
+}
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    } 
 
+const Root = async () => {
+  const { isLoading, user, getAccessTokenSilently } = useAuth0();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user.sub) {
+        console.log('missing sub');
+        return;
+      }
+      
+      const userSub = user.sub;
+      try {
+        await postToDb(userSub, getAccessTokenSilently);
+      } catch (error) {
+        console.error('Error posting to DB:', error);
+      }
+    };
+
+    if (!isLoading) {
+      fetchData();
+    }
+  }, [isLoading, user, getAccessTokenSilently]);
     return (
        
         <>

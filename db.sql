@@ -1,6 +1,5 @@
 --
 -- PostgreSQL database dump
---Tables only, data had account number from Auth0
 --
 
 -- Dumped from database version 16.2 (Postgres.app)
@@ -18,119 +17,151 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: transaction_category; Type: TYPE; Schema: public; Owner: ingridg
+-- Name: update_budget_and_goals(); Type: FUNCTION; Schema: public; Owner: ingridg
 --
 
-CREATE TYPE public.transaction_category AS ENUM (
-    'saving',
-    'income',
-    'expense'
-);
-
-
-ALTER TYPE public.transaction_category OWNER TO ingridg;
-
---
--- Name: insert_into_income_expenses_savings(); Type: FUNCTION; Schema: public; Owner: ingridg
---
-
-CREATE FUNCTION public.insert_into_income_expenses_savings() RETURNS trigger
+CREATE FUNCTION public.update_budget_and_goals() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+DECLARE
+--    v_total_income NUMERIC;
+--    v_total_expenses NUMERIC;
+--    v_total_savings NUMERIC;
+--    v_remaining_cashflow NUMERIC;
+--    v_user_budget_amount NUMERIC;
 BEGIN
-    IF NEW.type = 'income' THEN
-        INSERT INTO income (user_id, amount, description, date)
-        VALUES (NEW.user_id, NEW.amount, NEW.description, NEW.created_at);
-    ELSIF NEW.type = 'expense' THEN
-        INSERT INTO expenses (user_id, amount, category_id, description, date)
-        VALUES (NEW.user_id, NEW.amount, NEW.category_id, NEW.description, NEW.created_at);
-    ELSIF NEW.type = 'saving' THEN
-        INSERT INTO savings (user_id, amount, description, date)
-        VALUES (NEW.user_id, NEW.amount, NEW.description, NEW.created_at);
+--    -- Fetch budget amount for the user
+--    SELECT budget_amount INTO v_user_budget_amount
+--    FROM budget
+--    WHERE user_id = NEW.user_id;
+--
+--    -- Calculate total income including account balances
+--    SELECT COALESCE(SUM(amount), 0) + COALESCE(SUM(balance), 0) INTO v_total_income
+--    FROM transactions
+--    LEFT JOIN accounts ON transactions.account_id = accounts.account_id
+--    WHERE transactions.user_id = NEW.user_id AND transactions.amount > 0;
+--
+    -- Calculate total expenses
+--    SELECT COALESCE(SUM(amount), 0) INTO v_total_expenses
+--    FROM transactions
+--    WHERE user_id = NEW.user_id AND amount < 0;
+
+--    -- Calculate total savings
+----    v_total_savings := v_total_income - v_total_expenses;
+--  
+--
+--    -- Calculate remaining cashflow
+--    v_remaining_cashflow := v_user_budget_amount - v_total_expenses;
+--
+--    -- Update budget table
+--    UPDATE budget
+--    SET total_expenses = v_total_expenses
+--total_income = v_total_income,
+--        total_savings = v_total_savings,
+--        remaining_cashflow = v_remaining_cashflow
+--    WHERE user_id = NEW.user_id;
+
+    -- Update financial goals table if transaction contributes to a goal
+    IF NEW.goal_id IS NOT NULL THEN
+        -- Update current amount towards the goal
+        UPDATE financial_goals
+        SET remaining_amount = goal_amount - (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE goal_id = NEW.goal_id)
+        WHERE goal_id = NEW.goal_id;
+        
+        -- Update remaining amount towards the goal
+        UPDATE financial_goals
+        SET current_amount = goal_amount - remaining_amount
+        WHERE goal_id = NEW.goal_id;
     END IF;
-    RETURN NULL;
-END;
-$$;
 
-
-ALTER FUNCTION public.insert_into_income_expenses_savings() OWNER TO ingridg;
-
---
--- Name: update_budget_after_expenses_insert(); Type: FUNCTION; Schema: public; Owner: ingridg
---
-
-CREATE FUNCTION public.update_budget_after_expenses_insert() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    UPDATE budget
-    SET total_expenses = (SELECT SUM(amount) FROM expenses WHERE user_id = NEW.user_id),
-        remaining_cashflow = (SELECT SUM(amount) FROM income WHERE user_id = NEW.user_id) - (SELECT SUM(amount) FROM expenses WHERE user_id = NEW.user_id) - (SELECT SUM(amount) FROM savings WHERE user_id = NEW.user_id)
-    WHERE user_id = NEW.user_id;
     RETURN NEW;
 END;
 $$;
 
 
-ALTER FUNCTION public.update_budget_after_expenses_insert() OWNER TO ingridg;
+ALTER FUNCTION public.update_budget_and_goals() OWNER TO ingridg;
 
 --
--- Name: update_budget_after_income_insert(); Type: FUNCTION; Schema: public; Owner: ingridg
+-- Name: update_goals(); Type: FUNCTION; Schema: public; Owner: ingridg
 --
 
-CREATE FUNCTION public.update_budget_after_income_insert() RETURNS trigger
+CREATE FUNCTION public.update_goals() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
+DECLARE
+--    v_total_expenses NUMERIC;
+--
 BEGIN
-    UPDATE budget
-    SET total_income = (SELECT SUM(amount) FROM income WHERE user_id = NEW.user_id),
-        remaining_cashflow = (SELECT SUM(amount) FROM income WHERE user_id = NEW.user_id) - (SELECT SUM(amount) FROM expenses WHERE user_id = NEW.user_id) - (SELECT SUM(amount) FROM savings WHERE user_id = NEW.user_id)
-    WHERE user_id = NEW.user_id;
+    -- Calculate total expenses
+--    SELECT COALESCE(SUM(amount), 0) INTO v_total_expenses
+--    FROM transactions
+--    WHERE user_id = NEW.user_id AND amount < 0;
+--
+----    -- Update budget table
+--    UPDATE budget
+--    SET total_expenses = v_total_expenses
+--    WHERE user_id = NEW.user_id;
+--
+    -- Update financial goals table if transaction contributes to a goal
+    IF NEW.goal_id IS NOT NULL THEN
+        -- Update current amount towards the goal
+        UPDATE financial_goals
+        SET remaining_amount = goal_amount - (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE goal_id = NEW.goal_id)
+        WHERE goal_id = NEW.goal_id;
+        
+        -- Update remaining amount towards the goal
+        UPDATE financial_goals
+        SET current_amount = goal_amount - remaining_amount
+        WHERE goal_id = NEW.goal_id;
+    END IF;
+
     RETURN NEW;
 END;
 $$;
 
 
-ALTER FUNCTION public.update_budget_after_income_insert() OWNER TO ingridg;
-
---
--- Name: update_budget_after_savings_insert(); Type: FUNCTION; Schema: public; Owner: ingridg
---
-
-CREATE FUNCTION public.update_budget_after_savings_insert() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    UPDATE budget
-    SET total_savings = (SELECT SUM(amount) FROM savings WHERE user_id = NEW.user_id),
-        remaining_cashflow = (SELECT SUM(amount) FROM income WHERE user_id = NEW.user_id) - (SELECT SUM(amount) FROM expenses WHERE user_id = NEW.user_id) - (SELECT SUM(amount) FROM savings WHERE user_id = NEW.user_id)
-    WHERE user_id = NEW.user_id;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION public.update_budget_after_savings_insert() OWNER TO ingridg;
-
---
--- Name: update_updated_at(); Type: FUNCTION; Schema: public; Owner: ingridg
---
-
-CREATE FUNCTION public.update_updated_at() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION public.update_updated_at() OWNER TO ingridg;
+ALTER FUNCTION public.update_goals() OWNER TO ingridg;
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: accounts; Type: TABLE; Schema: public; Owner: ingridg
+--
+
+CREATE TABLE public.accounts (
+    account_id integer NOT NULL,
+    user_id integer NOT NULL,
+    account_name_info character varying(255),
+    balance numeric(10,2),
+    user_sub character varying(100)
+);
+
+
+ALTER TABLE public.accounts OWNER TO ingridg;
+
+--
+-- Name: accounts_account_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
+--
+
+CREATE SEQUENCE public.accounts_account_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.accounts_account_id_seq OWNER TO ingridg;
+
+--
+-- Name: accounts_account_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
+--
+
+ALTER SEQUENCE public.accounts_account_id_seq OWNED BY public.accounts.account_id;
+
 
 --
 -- Name: budget; Type: TABLE; Schema: public; Owner: ingridg
@@ -138,16 +169,13 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.budget (
     budget_id integer NOT NULL,
-    budget_name character varying(100),
-    user_id integer,
-    budget_amount numeric(10,2) NOT NULL,
+    user_id integer NOT NULL,
+    amount numeric(10,2) NOT NULL,
     description text,
-    start_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    total_income numeric(10,2),
-    total_expenses numeric(10,2),
-    total_savings numeric(10,2),
-    remaining_cashflow numeric(10,2)
+    start_date timestamp without time zone DEFAULT CURRENT_DATE,
+    updated_at timestamp without time zone DEFAULT CURRENT_DATE,
+    category_id integer,
+    user_sub character varying(100)
 );
 
 
@@ -181,9 +209,8 @@ ALTER SEQUENCE public.budget_budget_id_seq OWNED BY public.budget.budget_id;
 
 CREATE TABLE public.categories (
     category_id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    description character varying(200),
-    icon text DEFAULT '<FontAwesomeIcon icon="fa-solid fa-money-bill-1-wave" />'::text
+    category_name character varying(255) NOT NULL,
+    description character varying(200)
 );
 
 
@@ -210,43 +237,20 @@ ALTER SEQUENCE public.categories_category_id_seq OWNER TO ingridg;
 
 ALTER SEQUENCE public.categories_category_id_seq OWNED BY public.categories.category_id;
 
-
---
--- Name: expenses; Type: TABLE; Schema: public; Owner: ingridg
---
-
-CREATE TABLE public.expenses (
-    expense_id integer NOT NULL,
-    user_id integer,
-    amount numeric(10,2) NOT NULL,
-    category_id integer,
-    description text,
-    date timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE public.expenses OWNER TO ingridg;
-
---
--- Name: expenses_expense_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
---
-
-CREATE SEQUENCE public.expenses_expense_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.expenses_expense_id_seq OWNER TO ingridg;
-
---
--- Name: expenses_expense_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
---
-
-ALTER SEQUENCE public.expenses_expense_id_seq OWNED BY public.expenses.expense_id;
+-- INSERT INTO categories (category_name, description) VALUES
+--     ('Rent', 'monthly house or rent payments'),
+--     ('Utilities', 'water, gas, electricity, cellphone, garbage'),
+--     ('Transportation', 'gas, car insurance, public transportation, taxi'),
+--     ('Food', 'groceries, restaurant outings, snacks'),
+--     ('Healthcare and Wellness', 'hospital bills, eye exams, dental cleanings'),
+--     ('Savings', 'savings for retirement, travel, future expenses'),
+--     ('Recreation and Entertainment', 'guitar lessons, hulu/netflix, gaming, camping, theme parks, salsa dancing'),
+--     ('Lending $ to family & friends', 'giving for Quinceañera, abuela food costs, help pay cousin school loans'),
+--     ('Education', 'online learning, conferences, book costs, tuition fees'),
+--     ('Debt Payments', 'credit card, school debt, paying back mamá'),
+--     ('Personal Spending', 'manicure, massage, new clothes, shoes'),
+--     ('Miscellaneous', 'getting money back from friends, new rug, kitchen silverware, detergent, broom'),
+--     ('Café', 'coffee, tea, smoothie at cafes, include pastries here too');
 
 
 --
@@ -254,26 +258,26 @@ ALTER SEQUENCE public.expenses_expense_id_seq OWNED BY public.expenses.expense_i
 --
 
 CREATE TABLE public.financial_goals (
-    goals_id integer NOT NULL,
-    user_id integer,
-    goal_name character varying(100) NOT NULL,
-    target_amount numeric(10,2) NOT NULL,
-    current_amount numeric(10,2) DEFAULT 0,
-    goal_type character varying(20) DEFAULT 'Savings'::character varying NOT NULL,
-    term character varying(40),
+    goal_id integer NOT NULL,
+    user_id integer NOT NULL,
+    goal_name character varying(255),
+    goal_amount numeric(10,2),
     target_date date,
-    date_created timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    date_updated timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    current_amount numeric(10,2),
+    remaining_amount numeric(10,2),
+    user_sub character varying(100)
 );
 
 
 ALTER TABLE public.financial_goals OWNER TO ingridg;
 
 --
--- Name: financial_goals_goals_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
+-- Name: financial_goals_goal_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
 --
 
-CREATE SEQUENCE public.financial_goals_goals_id_seq
+CREATE SEQUENCE public.financial_goals_goal_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -282,162 +286,13 @@ CREATE SEQUENCE public.financial_goals_goals_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.financial_goals_goals_id_seq OWNER TO ingridg;
+ALTER SEQUENCE public.financial_goals_goal_id_seq OWNER TO ingridg;
 
 --
--- Name: financial_goals_goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
+-- Name: financial_goals_goal_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
 --
 
-ALTER SEQUENCE public.financial_goals_goals_id_seq OWNED BY public.financial_goals.goals_id;
-
-
---
--- Name: income; Type: TABLE; Schema: public; Owner: ingridg
---
-
-CREATE TABLE public.income (
-    income_id integer NOT NULL,
-    user_id integer,
-    amount numeric(10,2) NOT NULL,
-    description text,
-    date timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE public.income OWNER TO ingridg;
-
---
--- Name: income_income_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
---
-
-CREATE SEQUENCE public.income_income_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.income_income_id_seq OWNER TO ingridg;
-
---
--- Name: income_income_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
---
-
-ALTER SEQUENCE public.income_income_id_seq OWNED BY public.income.income_id;
-
-
---
--- Name: reports; Type: TABLE; Schema: public; Owner: ingridg
---
-
-CREATE TABLE public.reports (
-    report_id integer NOT NULL,
-    user_id integer,
-    report_name character varying(100) NOT NULL,
-    insights_text text,
-    date_generated timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE public.reports OWNER TO ingridg;
-
---
--- Name: reports_report_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
---
-
-CREATE SEQUENCE public.reports_report_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.reports_report_id_seq OWNER TO ingridg;
-
---
--- Name: reports_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
---
-
-ALTER SEQUENCE public.reports_report_id_seq OWNED BY public.reports.report_id;
-
-
---
--- Name: savings; Type: TABLE; Schema: public; Owner: ingridg
---
-
-CREATE TABLE public.savings (
-    saving_id integer NOT NULL,
-    user_id integer,
-    amount numeric(10,2) NOT NULL,
-    description text,
-    date timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE public.savings OWNER TO ingridg;
-
---
--- Name: savings_saving_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
---
-
-CREATE SEQUENCE public.savings_saving_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.savings_saving_id_seq OWNER TO ingridg;
-
---
--- Name: savings_saving_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
---
-
-ALTER SEQUENCE public.savings_saving_id_seq OWNED BY public.savings.saving_id;
-
-
---
--- Name: statistics; Type: TABLE; Schema: public; Owner: ingridg
---
-
-CREATE TABLE public.statistics (
-    statistic_id integer NOT NULL,
-    user_id integer NOT NULL,
-    category character varying(20) NOT NULL,
-    metric character varying(50) NOT NULL,
-    value numeric(10,2) NOT NULL,
-    date date NOT NULL
-);
-
-
-ALTER TABLE public.statistics OWNER TO ingridg;
-
---
--- Name: statistics_statistic_id_seq; Type: SEQUENCE; Schema: public; Owner: ingridg
---
-
-CREATE SEQUENCE public.statistics_statistic_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.statistics_statistic_id_seq OWNER TO ingridg;
-
---
--- Name: statistics_statistic_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ingridg
---
-
-ALTER SEQUENCE public.statistics_statistic_id_seq OWNED BY public.statistics.statistic_id;
+ALTER SEQUENCE public.financial_goals_goal_id_seq OWNED BY public.financial_goals.goal_id;
 
 
 --
@@ -447,12 +302,13 @@ ALTER SEQUENCE public.statistics_statistic_id_seq OWNED BY public.statistics.sta
 CREATE TABLE public.transactions (
     transaction_id integer NOT NULL,
     user_id integer NOT NULL,
-    amount numeric(10,2) NOT NULL,
-    type public.transaction_category NOT NULL,
+    account_id integer,
     description text,
     category_id integer,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    amount numeric(10,2),
+    transaction_date date DEFAULT CURRENT_DATE NOT NULL,
+    goal_id integer,
+    user_sub character varying(100)
 );
 
 
@@ -486,11 +342,14 @@ ALTER SEQUENCE public.transactions_transaction_id_seq OWNED BY public.transactio
 
 CREATE TABLE public.users (
     user_id integer NOT NULL,
+    username character varying(100) NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     name character varying(50) NOT NULL,
-    email character varying(30) NOT NULL,
-    password character varying(30),
-    registration_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    is_active boolean
+    role character varying(8) DEFAULT 'user'::character varying,
+    user_sub character varying(100)
 );
 
 
@@ -519,6 +378,13 @@ ALTER SEQUENCE public.users_user_id_seq OWNED BY public.users.user_id;
 
 
 --
+-- Name: accounts account_id; Type: DEFAULT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.accounts ALTER COLUMN account_id SET DEFAULT nextval('public.accounts_account_id_seq'::regclass);
+
+
+--
 -- Name: budget budget_id; Type: DEFAULT; Schema: public; Owner: ingridg
 --
 
@@ -533,45 +399,10 @@ ALTER TABLE ONLY public.categories ALTER COLUMN category_id SET DEFAULT nextval(
 
 
 --
--- Name: expenses expense_id; Type: DEFAULT; Schema: public; Owner: ingridg
+-- Name: financial_goals goal_id; Type: DEFAULT; Schema: public; Owner: ingridg
 --
 
-ALTER TABLE ONLY public.expenses ALTER COLUMN expense_id SET DEFAULT nextval('public.expenses_expense_id_seq'::regclass);
-
-
---
--- Name: financial_goals goals_id; Type: DEFAULT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.financial_goals ALTER COLUMN goals_id SET DEFAULT nextval('public.financial_goals_goals_id_seq'::regclass);
-
-
---
--- Name: income income_id; Type: DEFAULT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.income ALTER COLUMN income_id SET DEFAULT nextval('public.income_income_id_seq'::regclass);
-
-
---
--- Name: reports report_id; Type: DEFAULT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.reports ALTER COLUMN report_id SET DEFAULT nextval('public.reports_report_id_seq'::regclass);
-
-
---
--- Name: savings saving_id; Type: DEFAULT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.savings ALTER COLUMN saving_id SET DEFAULT nextval('public.savings_saving_id_seq'::regclass);
-
-
---
--- Name: statistics statistic_id; Type: DEFAULT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.statistics ALTER COLUMN statistic_id SET DEFAULT nextval('public.statistics_statistic_id_seq'::regclass);
+ALTER TABLE ONLY public.financial_goals ALTER COLUMN goal_id SET DEFAULT nextval('public.financial_goals_goal_id_seq'::regclass);
 
 
 --
@@ -589,11 +420,27 @@ ALTER TABLE ONLY public.users ALTER COLUMN user_id SET DEFAULT nextval('public.u
 
 
 --
+-- Name: accounts accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.accounts
+    ADD CONSTRAINT accounts_pkey PRIMARY KEY (account_id);
+
+
+--
 -- Name: budget budget_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
 --
 
 ALTER TABLE ONLY public.budget
     ADD CONSTRAINT budget_pkey PRIMARY KEY (budget_id);
+
+
+--
+-- Name: categories categories_category_name_key; Type: CONSTRAINT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_category_name_key UNIQUE (category_name);
 
 
 --
@@ -605,51 +452,11 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- Name: expenses expenses_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT expenses_pkey PRIMARY KEY (expense_id);
-
-
---
 -- Name: financial_goals financial_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
 --
 
 ALTER TABLE ONLY public.financial_goals
-    ADD CONSTRAINT financial_goals_pkey PRIMARY KEY (goals_id);
-
-
---
--- Name: income income_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.income
-    ADD CONSTRAINT income_pkey PRIMARY KEY (income_id);
-
-
---
--- Name: reports reports_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_pkey PRIMARY KEY (report_id);
-
-
---
--- Name: savings savings_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.savings
-    ADD CONSTRAINT savings_pkey PRIMARY KEY (saving_id);
-
-
---
--- Name: statistics statistics_pkey; Type: CONSTRAINT; Schema: public; Owner: ingridg
---
-
-ALTER TABLE ONLY public.statistics
-    ADD CONSTRAINT statistics_pkey PRIMARY KEY (statistic_id);
+    ADD CONSTRAINT financial_goals_pkey PRIMARY KEY (goal_id);
 
 
 --
@@ -677,38 +484,34 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: expenses expenses_insert_trigger; Type: TRIGGER; Schema: public; Owner: ingridg
+-- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: ingridg
 --
 
-CREATE TRIGGER expenses_insert_trigger AFTER INSERT ON public.expenses FOR EACH ROW EXECUTE FUNCTION public.update_budget_after_expenses_insert();
-
-
---
--- Name: income income_insert_trigger; Type: TRIGGER; Schema: public; Owner: ingridg
---
-
-CREATE TRIGGER income_insert_trigger AFTER INSERT ON public.income FOR EACH ROW EXECUTE FUNCTION public.update_budget_after_income_insert();
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_username_key UNIQUE (username);
 
 
 --
--- Name: transactions insert_into_income_expenses_savings_trigger; Type: TRIGGER; Schema: public; Owner: ingridg
+-- Name: transactions update_budget_trigger; Type: TRIGGER; Schema: public; Owner: ingridg
 --
 
-CREATE TRIGGER insert_into_income_expenses_savings_trigger AFTER INSERT ON public.transactions FOR EACH ROW EXECUTE FUNCTION public.insert_into_income_expenses_savings();
-
-
---
--- Name: savings savings_insert_trigger; Type: TRIGGER; Schema: public; Owner: ingridg
---
-
-CREATE TRIGGER savings_insert_trigger AFTER INSERT ON public.savings FOR EACH ROW EXECUTE FUNCTION public.update_budget_after_savings_insert();
+CREATE TRIGGER update_budget_trigger AFTER INSERT OR UPDATE ON public.transactions FOR EACH ROW EXECUTE FUNCTION public.update_budget_and_goals();
 
 
 --
--- Name: transactions update_updated_at_trigger; Type: TRIGGER; Schema: public; Owner: ingridg
+-- Name: accounts accounts_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
 --
 
-CREATE TRIGGER update_updated_at_trigger BEFORE UPDATE ON public.transactions FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+ALTER TABLE ONLY public.accounts
+    ADD CONSTRAINT accounts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE;
+
+
+--
+-- Name: budget budget_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.budget
+    ADD CONSTRAINT budget_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(category_id);
 
 
 --
@@ -716,23 +519,47 @@ CREATE TRIGGER update_updated_at_trigger BEFORE UPDATE ON public.transactions FO
 --
 
 ALTER TABLE ONLY public.budget
-    ADD CONSTRAINT budget_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+    ADD CONSTRAINT budget_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE;
 
 
 --
--- Name: income income_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
+-- Name: financial_goals financial_goals_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
 --
 
-ALTER TABLE ONLY public.income
-    ADD CONSTRAINT income_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+ALTER TABLE ONLY public.financial_goals
+    ADD CONSTRAINT financial_goals_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE;
 
 
 --
--- Name: transactions user_id; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
+-- Name: transactions transactions_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
 --
 
 ALTER TABLE ONLY public.transactions
-    ADD CONSTRAINT user_id FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+    ADD CONSTRAINT transactions_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.accounts(account_id);
+
+
+--
+-- Name: transactions transactions_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(category_id);
+
+
+--
+-- Name: transactions transactions_goal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_goal_id_fkey FOREIGN KEY (goal_id) REFERENCES public.financial_goals(goal_id);
+
+
+--
+-- Name: transactions transactions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ingridg
+--
+
+ALTER TABLE ONLY public.transactions
+    ADD CONSTRAINT transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
 
 
 --
